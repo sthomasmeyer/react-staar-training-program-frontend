@@ -1,0 +1,166 @@
+.TableStyle {
+  width: 90%;
+  border: 3px solid #171717;
+  margin: 0 auto;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 10px;
+  padding-top: 0;
+}
+
+.TableStyle-selected-text {
+  border: 1px solid #171717;
+  border-radius: 1%;
+  margin: 0;
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: justify;
+}
+
+.TableStyle-table {
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+}
+
+.TableStyle-conditions {
+  display: inline-grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 75px;
+  text-align: center;
+  align-items: center;
+}
+
+.TableStyle-conditions p:first-of-type {
+  font-size: 1rem;
+}
+
+.TableStyle-conditions p {
+  max-width: 150px;
+  height: 75px;
+  border: none;
+  border-left: 1px solid #171717;
+  border-right: 1px solid #171717;
+  padding: 2.5px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+#TableStyle-statement {
+  max-width: 650px;
+  border: none;
+}
+
+.TableStyle-option {
+  display: inline-grid;
+  grid-template-columns: 2fr 1fr 1fr;
+}
+
+.TableStyle-option-label {
+  max-width: 650px;
+  padding: 5px;
+  border-bottom: 1px solid #171717;
+}
+
+.TableStyle-option-checkbox {
+  max-width: 150px;
+  padding-bottom: 7.5px;
+  border-left: 1px solid #171717;
+  border-right: 1px solid #171717;
+  border-bottom: 1px solid #171717;
+  display: flex;
+  justify-content: center;
+}
+
+.TableStyle button {
+  display: flex;
+  border-radius: 5%;
+  margin: 0 auto;
+  margin-top: 10px;
+  padding: 5px;
+  color: ghostwhite;
+  background-color: #171717;
+  font-weight: bolder;
+}
+
+.TableStyle button:hover {
+  cursor: pointer;
+  color: #171717;
+  background-color: ghostwhite;
+}
+
+/* @media queries to adjust the size of these table-style questions */
+
+@media (min-width: 800px) {
+  .TableStyle-table {
+    width: 350px;
+  }
+  .TableStyle-option {
+    display: inline-grid;
+    grid-template-columns: 150px 100px 100px;
+  }
+  .TableStyle-conditions {
+    display: inline-grid;
+    grid-template-columns: 150px 100px 100px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .TableStyle-table {
+    width: 455px;
+  }
+  .TableStyle-option {
+    display: inline-grid;
+    grid-template-columns: 215px 120px 120px;
+  }
+  .TableStyle-conditions {
+    display: inline-grid;
+    grid-template-columns: 215px 120px 120px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .TableStyle-table {
+    width: 600px;
+  }
+  .TableStyle-option {
+    display: inline-grid;
+    grid-template-columns: 330px 120px 120px;
+  }
+  .TableStyle-conditions {
+    display: inline-grid;
+    grid-template-columns: 330px 120px 120px;
+  }
+}
+
+@media (min-width: 1700px) {
+  .TableStyle-table {
+    width: 750px;
+  }
+  .TableStyle-option {
+    display: inline-grid;
+    grid-template-columns: 470px 125px 125px;
+  }
+  .TableStyle-conditions {
+    display: inline-grid;
+    grid-template-columns: 470px 125px 125px;
+  }
+}
+
+@media (min-width: 2000px) {
+  .TableStyle-table {
+    width: 900px;
+  }
+  .TableStyle-option {
+    display: inline-grid;
+    grid-template-columns: 595px 125px 125px;
+  }
+  .TableStyle-conditions {
+    display: inline-grid;
+    grid-template-columns: 595px 125px 125px;
+  }
+}

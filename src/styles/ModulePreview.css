@@ -1,0 +1,80 @@
+.ModulePreview {
+  border: 5px solid #171717;
+  max-width: 888px;
+  max-height: 444px;
+  margin: 0 auto;
+  margin-bottom: 44px;
+  overflow: auto;
+  color: #171717;
+  box-shadow: -2.5px 2.5px 10px crimson;
+}
+
+.ModulePreview-banner {
+  display: flex;
+  width: 95%;
+  margin: 0 auto;
+  margin-top: 0.25rem;
+  margin-bottom: -0.25rem;
+  justify-content: space-between;
+  padding: 5px;
+}
+
+.ModulePreview h1:first-of-type {
+  border: 1.5px solid crimson;
+  max-height: 41px;
+  color: ghostwhite;
+  background-color: #171717;
+  border-radius: 10%;
+  padding: 5px;
+  margin: 0;
+  font-weight: bolder;
+}
+
+.ModulePreview h1:last-of-type {
+  font-variant: small-caps;
+  padding: 5px;
+  margin: 0 auto;
+}
+
+.ModulePreview-text {
+  width: 95%;
+  margin: 0 auto;
+}
+
+.ModulePreview-text h2 {
+  margin-bottom: -0.5rem;
+}
+
+.ModulePreview-text h3 {
+  margin-left: 1rem;
+}
+
+.ModulePreview-text-border {
+  margin-bottom: -0.25rem;
+  width: 75%;
+  border-bottom: 3px solid #171717;
+  border-bottom-left-radius: 800px 200px;
+}
+
+.ModulePreview-questions {
+  width: 95%;
+  margin: 0 auto;
+}
+
+.ModulePreview-questions h2 {
+  font-variant: small-caps;
+  margin-bottom: -0.5rem;
+}
+
+.ModulePreview::-webkit-scrollbar {
+  width: 1rem;
+}
+
+.ModulePreview::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+.ModulePreview::-webkit-scrollbar-thumb {
+  background: crimson;
+  border: 2.5px solid ghostwhite;
+}

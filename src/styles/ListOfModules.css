@@ -1,0 +1,22 @@
+.ListOfModules {
+  margin-top: 3rem;
+}
+
+.ListOfModules-banner {
+  background-color: #e8e8e8;
+  text-align: center;
+}
+
+.ListOfModules-banner h1 {
+  padding: 1rem;
+}
+
+.ListOfModules-main-module {
+  width: 60%;
+  max-width: 888px;
+  margin: 0 auto;
+}
+
+.ListOfModules-main-module:hover {
+  box-shadow: -7.5px 7.5px 25px crimson;
+}

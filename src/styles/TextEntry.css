@@ -1,0 +1,40 @@
+.TextEntry {
+  /* width: 1000px; */
+  width: 90%;
+  border: 3px solid #171717;
+  margin: 0 auto;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding: 10px;
+  padding-top: 0;
+}
+
+.TextEntry-selected-text {
+  border: 1px solid #171717;
+  border-radius: 1%;
+  margin: 0;
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: justify;
+}
+
+.TextEntry-incomplete-statement input {
+  width: 20%;
+  max-width: 125px;
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.TextEntry button {
+  border-radius: 5%;
+  padding: 5px;
+  color: ghostwhite;
+  background-color: #171717;
+  font-weight: bolder;
+}
+
+.TextEntry button:hover {
+  cursor: pointer;
+  color: #171717;
+  background-color: ghostwhite;
+}

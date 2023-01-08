@@ -1,0 +1,12 @@
+.App {
+  margin-top: 3rem;
+}
+
+.App-banner {
+  background-color: #e8e8e8;
+  text-align: center;
+}
+
+.App-banner h1 {
+  padding: 1rem;
+}

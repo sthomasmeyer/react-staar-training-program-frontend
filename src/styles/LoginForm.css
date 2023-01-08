@@ -1,0 +1,53 @@
+.LoginForm {
+  width: 50%;
+  max-width: 475px;
+  border: 3px solid crimson;
+  margin: 0 auto;
+  padding: 1rem;
+  box-shadow: -2.5px 2.5px 10px crimson;
+}
+
+.LoginForm label {
+  font-weight: bolder;
+  display: inline-block;
+  width: 110px;
+}
+
+.LoginForm input {
+  padding: 2.5px;
+  margin-bottom: 10px;
+}
+
+.LoginForm button {
+  color: ghostwhite;
+  background-color: #171717;
+  font-weight: bolder;
+  padding: 5px;
+  border-radius: 5%;
+}
+
+.LoginForm-main {
+  margin-bottom: 1rem;
+  border-bottom: 1.5px solid #171717;
+  padding-bottom: 0.75rem;
+}
+
+.LoginForm-main button:focus {
+  background-color: crimson;
+}
+
+.LoginForm-main button:hover {
+  background-color: crimson;
+  cursor: pointer;
+}
+
+.LoginForm-create-acct button:focus {
+  color: #171717;
+  background-color: ghostwhite;
+}
+
+.LoginForm-create-acct button:hover {
+  color: #171717;
+  background-color: ghostwhite;
+  cursor: pointer;
+}

@@ -1,0 +1,83 @@
+.NewUserForm {
+  border: 3px solid crimson;
+  width: 50%;
+  max-width: 475px;
+  margin: 0 auto;
+  margin-top: 4rem;
+  padding: 1rem;
+  box-shadow: -2.5px 2.5px 10px crimson;
+}
+
+.NewUserForm h1 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.NewUserForm label {
+  font-weight: bolder;
+  display: inline-block;
+  width: 140px;
+}
+
+.NewUserForm input {
+  padding: 2.5px;
+  margin-bottom: 10px;
+}
+
+.NewUserForm select {
+  padding: 2.5px;
+  margin-bottom: 10px;
+}
+
+.NewUserForm-main-pwd-instructions {
+  width: 75%;
+  border: 1px solid #171717;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  box-shadow: -1px -1px 5px #171717;
+}
+
+.NewUserForm-main-pwd-instructions p {
+  margin-bottom: 2.5px;
+  font-variant: small-caps;
+}
+
+.NewUserForm-main-pwd-instructions li {
+  padding: 2.5px;
+  font-size: 0.9rem;
+}
+
+.NewUserForm button {
+  color: ghostwhite;
+  background-color: #171717;
+  font-weight: bolder;
+  padding: 5px;
+  border-radius: 5%;
+}
+
+.NewUserForm-main {
+  margin-bottom: 1rem;
+  border-bottom: 1.5px solid #171717;
+  padding-bottom: 0.75rem;
+}
+
+.NewUserForm-main button:focus {
+  background-color: crimson;
+}
+
+.NewUserForm-main button:hover {
+  background-color: crimson;
+  cursor: pointer;
+}
+
+.NewUserForm-login button:focus {
+  color: #171717;
+  background-color: ghostwhite;
+}
+
+.NewUserForm-login button:hover {
+  color: #171717;
+  background-color: ghostwhite;
+  cursor: pointer;
+}

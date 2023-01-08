@@ -1,0 +1,99 @@
+.EngTwoModule {
+  margin-top: 3rem;
+}
+
+.EngTwoModule-banner {
+  background-color: #e8e8e8;
+  text-align: center;
+}
+
+.EngTwoModule-banner h1 {
+  padding: 1rem;
+}
+
+.EngTwoModule-text {
+  float: left;
+  margin-left: 10px;
+  width: 47.5%;
+}
+
+.EngTwoModule-questions {
+  border: 5px solid crimson;
+  float: right;
+  margin-right: 10px;
+  width: 47.5%;
+}
+
+.EngTwoModule-questions-navigation {
+  padding: 5px;
+  display: flex;
+  width: 100%;
+}
+
+.EngTwoModule-questions-navigation-btn {
+  margin: 0 auto;
+  margin-bottom: -0.75rem;
+  padding: 5px;
+  border: 1px solid #171717;
+  border-radius: 15%;
+  font-size: 1rem;
+  font-weight: bolder;
+  color: ghostwhite;
+  background-color: #171717;
+}
+
+.EngTwoModule-questions-navigation-btn:hover {
+  cursor: pointer;
+  color: #171717;
+  background-color: ghostwhite;
+}
+
+.EngTwoModule-questions-main > div:first-of-type {
+  display: unset;
+}
+
+.EngTwoModule-questions-main-question {
+  display: none;
+}
+
+.EngTwoModule-questions-main-question--selected {
+  display: unset;
+}
+
+.EngTwoModule-final-submission {
+  box-shadow: -1px -1px 5px crimson;
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  padding-top: 10px;
+  padding-bottom: 2.5px;
+}
+
+.EngTwoModule-final-submission-warning {
+  border-radius: 1%;
+  margin: 0;
+  padding-right: 10px;
+  padding-left: 10px;
+  text-align: center;
+}
+
+#EngTwoModule-questions-final-submit-btn {
+  display: flex;
+  margin: 0 auto;
+  margin-top: 20px;
+  margin-bottom: 25px;
+  padding: 10px;
+  border-radius: 2.5%;
+  color: ghostwhite;
+  background-color: crimson;
+  font-size: 1rem;
+  font-weight: bolder;
+  font-variant: small-caps;
+}
+
+#EngTwoModule-questions-final-submit-btn:hover {
+  color: #171717;
+  background-color: ghostwhite;
+  cursor: pointer;
+}
