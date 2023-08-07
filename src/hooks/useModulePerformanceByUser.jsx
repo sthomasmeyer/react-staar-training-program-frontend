@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-let BASE_API_URL;
+let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
 
 if (process.env.NODE_ENV === 'development') {
   BASE_API_URL = 'http://localhost:8000';
