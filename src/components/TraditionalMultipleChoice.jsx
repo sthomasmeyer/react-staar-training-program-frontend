@@ -7,58 +7,33 @@ const TraditionalMultipleChoice = ({
   recordResponse,
   questionNumForDisplay
 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState([]);
+  const [selectedAnswer, setSelectedAnswer] = useState('');
 
   const handleChange = (evt) => {
-    const { id } = evt.target;
-    setSelectedAnswer(id);
+    setSelectedAnswer(evt.target.value);
   };
 
   const captureInput = (evt) => {
     evt.preventDefault();
 
-    if (
-      selectedAnswer
-        .split()
-        .sort()
-        .every(
-          (element, index) => element === questionData.correctAnswer[index]
-        )
-    ) {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        // Note, the [split()] method converts a string into an array.
-        userResponse: selectedAnswer.split(),
-        totalPoints: 1,
-        pointsEarned: 1,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
+    const isCorrect = selectedAnswer === questionData.correctAnswer[0];
+    const pointsEarned = isCorrect ? 1 : 0;
 
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 1
-      });
-    } else {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        // Note, the [split()] method converts a string into an array.
-        userResponse: selectedAnswer.split(),
-        totalPoints: 1,
-        pointsEarned: 0,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
+    submitResponse('english_two', {
+      correctResponse: questionData.correctAnswer,
+      userResponse: [selectedAnswer],
+      totalPoints: 1,
+      pointsEarned,
+      questionId: questionData.id,
+      moduleId: questionData.moduleId,
+      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
+    });
 
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 0
-      });
-    }
+    recordResponse({
+      questionId: questionData.id,
+      totalPoints: 1,
+      pointsEarned
+    });
   };
 
   return (
@@ -67,18 +42,23 @@ const TraditionalMultipleChoice = ({
         Q{questionNumForDisplay}: {questionData.question}
       </h3>
       <form onSubmit={captureInput}>
-        {questionData.answerChoices.map((option) => (
-          <div key={option} className='TraditionalMultipleChoice-option'>
-            <input
-              type='radio'
-              id={option}
-              name='TraditionalMultipleChoice'
-              onChange={handleChange}
-            />
-            <label htmlFor={option}>{option}</label>
-          </div>
-        ))}
-        <button>Submit</button>
+        {questionData.answerChoices.map((option, idx) => {
+          const inputId = `q-${questionData.id}-mc-${idx}`;
+          return (
+            <div key={option} className='TraditionalMultipleChoice-option'>
+              <input
+                type='radio'
+                id={inputId}
+                name={`TraditionalMultipleChoice-${questionData.id}`}
+                value={option}
+                checked={selectedAnswer === option}
+                onChange={handleChange}
+              />
+              <label htmlFor={inputId}>{option}</label>
+            </div>
+          );
+        })}
+        <button type='submit'>Submit</button>
       </form>
     </div>
   );

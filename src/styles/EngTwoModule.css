@@ -48,10 +48,6 @@
   background-color: ghostwhite;
 }
 
-.EngTwoModule-questions-main > div:first-of-type {
-  display: unset;
-}
-
 .EngTwoModule-questions-main-question {
   display: none;
 }

@@ -1,29 +1,29 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { fetchAllPerformanceDataByUser } from '../api/staarApi';
 
 const useAllPerformanceDataByUser = (subject, userId) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [allPerformanceData, setAllPerformanceData] = useState([]);
+  const [allPerformanceData, setAllPerformanceData] = useState(null);
 
   useEffect(() => {
-    async function getAllPerformanceData(targetSubject, userId) {
+    let isCancelled = false;
+
+    async function loadAllPerformanceData() {
       try {
-        let res = await axios.get(
-          `${BASE_API_URL}/modules/${targetSubject}/module_performance/user/${userId}`
-        );
-        setAllPerformanceData(res.data);
-        setIsLoading(false);
+        const data = await fetchAllPerformanceDataByUser(subject, userId);
+        if (!isCancelled) {
+          setAllPerformanceData(data);
+          setIsLoading(false);
+        }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
-    getAllPerformanceData(subject, userId);
+
+    loadAllPerformanceData();
+    return () => {
+      isCancelled = true;
+    };
   }, [subject, userId]);
 
   if (isLoading) {

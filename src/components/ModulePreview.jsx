@@ -1,44 +1,16 @@
-import { useEffect, useState } from 'react';
+import useModuleBySubjectAndId from '../hooks/useModuleBySubjectAndId';
 import useTextByModuleId from '../hooks/useTextByModuleId';
 import useQuestionsByModuleId from '../hooks/useQuestionsByModuleId';
 import '../styles/ModulePreview.css';
-import { v4 as uuid } from 'uuid';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
 
 const ModulePreview = ({ subject, id }) => {
-  const INITIAL_STATE = {
-    id: '',
-    moduleName: ''
-  };
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [moduleInfo, setModuleInfo] = useState(INITIAL_STATE);
-
+  const moduleData = useModuleBySubjectAndId(subject, id);
   const text = useTextByModuleId(id);
   const questions = useQuestionsByModuleId(id);
 
-  useEffect(() => {
-    async function getModuleInfo(targetSubject, moduleId) {
-      try {
-        let moduleInfo = await axios.get(
-          `${BASE_API_URL}/modules/${subject}/${id}`
-        );
-        setModuleInfo(moduleInfo.data.targetModule[0]);
-        setIsLoading(false);
-      } catch (err) {
-        console.log(err);
-      }
-    }
-    getModuleInfo(subject, id);
-  }, [subject, id]);
+  const moduleInfo = moduleData?.targetModule?.[0];
 
-  if (!text || !questions || isLoading) {
+  if (!text || !questions || !moduleInfo) {
     return <h3>Loading...</h3>;
   }
 
@@ -67,14 +39,12 @@ const ModulePreview = ({ subject, id }) => {
         <h2>{questions.questions.length} Questions</h2>
         <h4>Aligned TEKS: </h4>
         <ul>
-          {questions ? (
+          {questions.questions.length > 0 ? (
             questions.questions.map((question) => (
-              <li key={uuid()}>{question.alignedStandards}</li>
+              <li key={question.id}>{question.alignedStandards?.join(', ')}</li>
             ))
           ) : (
-            <li key={uuid()}>
-              You'll find no aligned standards here, my friend.
-            </li>
+            <li>You'll find no aligned standards here, my friend.</li>
           )}
         </ul>
       </div>

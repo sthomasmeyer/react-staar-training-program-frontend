@@ -7,65 +7,48 @@ const TableStyle = ({
   recordResponse,
   questionNumForDisplay
 }) => {
-  const [isSelected, setIsSelected] = useState([]);
+  const [selectedByRow, setSelectedByRow] = useState({});
 
-  const handleChange = (evt) => {
-    const { name, value } = evt.target;
-
-    if (value === 'true') {
-      if (isSelected.includes(name)) {
-        setIsSelected(isSelected.filter((elements) => elements !== name));
-      } else {
-        setIsSelected((elements) => [...elements, name]);
-      }
-    } else if (value === 'false') {
-      if (isSelected.includes(name)) {
-        setIsSelected(isSelected.filter((elements) => elements !== name));
-      }
-    }
+  const handleChange = (quote, value) => {
+    setSelectedByRow((prev) => ({
+      ...prev,
+      [quote]: value
+    }));
   };
 
   const captureInput = (evt) => {
     evt.preventDefault();
 
-    let sortedCorrectAnswer = questionData.correctAnswer.sort();
+    const isSelected = Object.entries(selectedByRow)
+      .filter(([, value]) => value === 'true')
+      .map(([quote]) => quote);
 
-    if (
-      isSelected.length === questionData.correctAnswer.length &&
-      isSelected
-        .sort()
-        .every((element, index) => element === sortedCorrectAnswer[index])
-    ) {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: isSelected.sort(),
-        totalPoints: 1,
-        pointsEarned: 1,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 1
-      });
-    } else {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: isSelected.sort(),
-        totalPoints: 1,
-        pointsEarned: 0,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 0
-      });
-    }
+    const sortedCorrectAnswer = [...questionData.correctAnswer].sort();
+    const sortedUserResponse = [...isSelected].sort();
+
+    const isCorrect =
+      sortedUserResponse.length === sortedCorrectAnswer.length &&
+      sortedUserResponse.every(
+        (element, index) => element === sortedCorrectAnswer[index]
+      );
+
+    const pointsEarned = isCorrect ? 1 : 0;
+
+    submitResponse('english_two', {
+      correctResponse: questionData.correctAnswer,
+      userResponse: sortedUserResponse,
+      totalPoints: 1,
+      pointsEarned,
+      questionId: questionData.id,
+      moduleId: questionData.moduleId,
+      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
+    });
+
+    recordResponse({
+      questionId: questionData.id,
+      totalPoints: 1,
+      pointsEarned
+    });
   };
 
   return (
@@ -88,30 +71,37 @@ const TableStyle = ({
           <p>{questionData.conditions[1]}</p>
         </div>
         <form onSubmit={captureInput}>
-          {questionData.answerChoices.map((quote) => (
-            <div key={quote} className='TableStyle-option'>
-              <div className='TableStyle-option-label'>
-                <label htmlFor={quote}>{quote}</label>
+          {questionData.answerChoices.map((quote, idx) => {
+            const radioGroupName = `q-${questionData.id}-row-${idx}`;
+            const trueInputId = `${radioGroupName}-true`;
+            return (
+              <div key={quote} className='TableStyle-option'>
+                <div className='TableStyle-option-label'>
+                  <label htmlFor={trueInputId}>{quote}</label>
+                </div>
+                <div className='TableStyle-option-checkbox'>
+                  <input
+                    type='radio'
+                    id={trueInputId}
+                    name={radioGroupName}
+                    value='true'
+                    checked={selectedByRow[quote] === 'true'}
+                    onChange={() => handleChange(quote, 'true')}
+                  />
+                </div>
+                <div className='TableStyle-option-checkbox'>
+                  <input
+                    type='radio'
+                    name={radioGroupName}
+                    value='false'
+                    checked={selectedByRow[quote] === 'false'}
+                    onChange={() => handleChange(quote, 'false')}
+                  />
+                </div>
               </div>
-              <div className='TableStyle-option-checkbox'>
-                <input
-                  type='radio'
-                  name={quote}
-                  value='true'
-                  onChange={handleChange}
-                />
-              </div>
-              <div className='TableStyle-option-checkbox'>
-                <input
-                  type='radio'
-                  name={quote}
-                  value='false'
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-          ))}
-          <button>Submit</button>
+            );
+          })}
+          <button type='submit'>Submit</button>
         </form>
       </div>
     </div>

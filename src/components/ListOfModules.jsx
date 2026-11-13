@@ -5,11 +5,8 @@ import ModulePreview from '../components/ModulePreview';
 import NavBar from './NavBar';
 import '../styles/ListOfModules.css';
 
-// In the current version of this app, there is *only* one subject -- English II...
-// So, this list of English II modules will serve as the de facto landing page.
-
-// In the future, there will be more subjects -- English I, U.S. History, etc...
-// So, the landing page will consist of subjects that students can choose to study.
+// English II is currently the sole supported subject, so its module catalog
+// serves as the authenticated landing page.
 const ListOfModules = ({ subject }) => {
   const modules = useModuleList(subject);
 

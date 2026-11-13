@@ -10,56 +10,44 @@ const MultiSelect = ({
   const [isChecked, setIsChecked] = useState([]);
 
   const handleChange = (evt) => {
-    const { name } = evt.target;
+    const { value } = evt.target;
 
-    if (isChecked.includes(name)) {
-      setIsChecked(isChecked.filter((elements) => elements !== name));
-    } else {
-      setIsChecked((elements) => [...elements, name]);
-    }
+    setIsChecked((prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value]
+    );
   };
 
   const captureInput = (evt) => {
     evt.preventDefault();
 
-    let sortedCorrectAnswer = questionData.correctAnswer.sort();
+    const sortedCorrectAnswer = [...questionData.correctAnswer].sort();
+    const sortedUserResponse = [...isChecked].sort();
 
-    if (
-      isChecked.length === questionData.correctAnswer.length &&
-      isChecked
-        .sort()
-        .every((element, index) => element === sortedCorrectAnswer[index])
-    ) {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: isChecked.sort(),
-        totalPoints: 1,
-        pointsEarned: 1,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 1
-      });
-    } else {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: isChecked.sort(),
-        totalPoints: 1,
-        pointsEarned: 0,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 1,
-        pointsEarned: 0
-      });
-    }
+    const isCorrect =
+      sortedUserResponse.length === sortedCorrectAnswer.length &&
+      sortedUserResponse.every(
+        (element, index) => element === sortedCorrectAnswer[index]
+      );
+
+    const pointsEarned = isCorrect ? 1 : 0;
+
+    submitResponse('english_two', {
+      correctResponse: questionData.correctAnswer,
+      userResponse: sortedUserResponse,
+      totalPoints: 1,
+      pointsEarned,
+      questionId: questionData.id,
+      moduleId: questionData.moduleId,
+      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
+    });
+
+    recordResponse({
+      questionId: questionData.id,
+      totalPoints: 1,
+      pointsEarned
+    });
   };
 
   return (
@@ -73,18 +61,23 @@ const MultiSelect = ({
         </div>
       ) : null}
       <form onSubmit={captureInput}>
-        {questionData.answerChoices.map((option) => (
-          <div key={option} className='MultiSelect-option'>
-            <input
-              type='checkbox'
-              id={option}
-              name={option}
-              onChange={handleChange}
-            />
-            <label htmlFor={option}>{option}</label>
-          </div>
-        ))}
-        <button>Submit</button>
+        {questionData.answerChoices.map((option, idx) => {
+          const inputId = `q-${questionData.id}-ms-${idx}`;
+          return (
+            <div key={option} className='MultiSelect-option'>
+              <input
+                type='checkbox'
+                id={inputId}
+                name={option}
+                value={option}
+                checked={isChecked.includes(option)}
+                onChange={handleChange}
+              />
+              <label htmlFor={inputId}>{option}</label>
+            </div>
+          );
+        })}
+        <button type='submit'>Submit</button>
       </form>
     </div>
   );

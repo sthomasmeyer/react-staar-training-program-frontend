@@ -1,23 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { authenticateUser } from '../api/staarApi';
 import '../styles/LoginForm.css';
 
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+const INITIAL_STATE = {
+  email: '',
+  pwd: ''
+};
 
 const LoginForm = () => {
-  const INITIAL_STATE = {
-    email: '',
-    pwd: ''
-  };
-
   const [formData, setFormData] = useState(INITIAL_STATE);
-
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleChange = (evt) => {
     const { name, value } = evt.target;
@@ -29,22 +22,20 @@ const LoginForm = () => {
 
   async function loginUser(data) {
     try {
-      let userToken = await axios.post(`${BASE_API_URL}/auth/token`, data);
-      // If the user's login attempt is successful, update sessionStorage and...
-      // navigate to the landing page.
+      const userToken = await authenticateUser(data);
       if (userToken) {
         sessionStorage.setItem(
           'staar-training-platform-jwt',
-          userToken.data.token
+          userToken.token
         );
         sessionStorage.setItem(
           'staar-training-platform-user-id',
-          userToken.data.user.id
+          String(userToken.user.id)
         );
         navigate('/english_two/modules');
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
@@ -78,12 +69,14 @@ const LoginForm = () => {
               onChange={handleChange}
             />
           </div>
-          <button>Login</button>
+          <button type='submit'>Login</button>
         </form>
       </div>
       <div className='LoginForm-create-acct'>
         New to the STAAR 2.0 Training Platform?{' '}
-        <button onClick={() => navigate('/register')}>Create Account</button>
+        <button type='button' onClick={() => navigate('/register')}>
+          Create Account
+        </button>
       </div>
     </div>
   );
