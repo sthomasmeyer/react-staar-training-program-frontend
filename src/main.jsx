@@ -6,6 +6,7 @@ import App from './App';
 import NewUserForm from './components/NewUserForm';
 import ProtectedRoute from './components/ProtectedRoute';
 import EngTwoModule from './components/EngTwoModule';
+import AttemptReview from './components/AttemptReview';
 import ListOfModules from './components/ListOfModules';
 import UserProfile from './components/UserProfile';
 import { ThemeProvider } from './context/ThemeContext';
@@ -32,6 +33,11 @@ const router = createBrowserRouter([
   {
     path: '/english_two/modules/:id',
     element: <ProtectedRoute component={<EngTwoModule />} />,
+    errorElement: <ErrorElement />
+  },
+  {
+    path: '/english_two/modules/:id/attempts/:attemptId',
+    element: <ProtectedRoute component={<AttemptReview />} />,
     errorElement: <ErrorElement />
   },
   {

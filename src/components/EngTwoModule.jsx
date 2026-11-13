@@ -9,17 +9,24 @@ import TableStyle from './TableStyle';
 import NavBar from './NavBar';
 import useQuestionsByModuleId from '../hooks/useQuestionsByModuleId';
 import useModuleBySubjectAndId from '../hooks/useModuleBySubjectAndId';
-import useModulePerformanceByUser from '../hooks/useModulePerformanceByUser';
-import firstAttemptSubmission from '../helpers/firstAttemptSubmission';
-import modulePerformanceUpdate from '../helpers/modulePerformanceUpdate';
+import useModuleAttemptState from '../hooks/useModuleAttemptState';
+import {
+  completeModuleAttempt,
+  discardActiveAttempt,
+  saveAttemptAnswer
+} from '../api/staarApi';
 import '../styles/EngTwoModule.css';
 
 const EngTwoModule = ({ moduleId }) => {
-  const [responses, setResponses] = useState([]);
   const [selectedQuestionId, setSelectedQuestionId] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
+  const [submittedReceipt, setSubmittedReceipt] = useState(null);
+  const [draftEpoch, setDraftEpoch] = useState(0);
   const [mobilePane, setMobilePane] = useState('both');
+
   const questionsScrollRef = useRef(null);
+  const hydratedModuleRef = useRef(null);
 
   const navigate = useNavigate();
   const params = useParams();
@@ -30,7 +37,7 @@ const EngTwoModule = ({ moduleId }) => {
 
   const questions = useQuestionsByModuleId(activeModuleId);
   const module = useModuleBySubjectAndId('english_two', activeModuleId);
-  const userPerformanceData = useModulePerformanceByUser(
+  const { attemptState, setAttemptState } = useModuleAttemptState(
     'english_two',
     activeModuleId,
     userId
@@ -39,13 +46,37 @@ const EngTwoModule = ({ moduleId }) => {
   const totalQuestions = questions?.questions?.length ?? 0;
 
   useEffect(() => {
+    hydratedModuleRef.current = null;
+    setSubmittedReceipt(null);
+    setConfirmDiscard(false);
+    setSelectedQuestionId(1);
+  }, [activeModuleId]);
+
+  useEffect(() => {
+    if (!questions || !attemptState) return;
+    if (hydratedModuleRef.current === activeModuleId) return;
+
+    hydratedModuleRef.current = activeModuleId;
+    const savedMap = attemptState.activeDraft?.responses || {};
+    const firstUnansweredIndex = questions.questions.findIndex(
+      (q) => !savedMap[String(q.id)]
+    );
+
+    if (firstUnansweredIndex !== -1) {
+      setSelectedQuestionId(firstUnansweredIndex + 1);
+    } else {
+      setSelectedQuestionId(1);
+    }
+  }, [questions, attemptState, activeModuleId]);
+
+  useEffect(() => {
     if (questionsScrollRef.current) {
       questionsScrollRef.current.scrollTop = 0;
     }
-  }, [selectedQuestionId, activeModuleId]);
+  }, [selectedQuestionId, activeModuleId, submittedReceipt]);
 
   useEffect(() => {
-    if (totalQuestions === 0) return undefined;
+    if (totalQuestions === 0 || submittedReceipt) return undefined;
 
     const handleKeyDown = (evt) => {
       const tag = evt.target?.tagName;
@@ -61,9 +92,9 @@ const EngTwoModule = ({ moduleId }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [totalQuestions]);
+  }, [totalQuestions, submittedReceipt]);
 
-  if (!questions || !module) {
+  if (!questions || !module || !attemptState) {
     return (
       <div className='EngTwoModule-shell'>
         <NavBar />
@@ -76,81 +107,133 @@ const EngTwoModule = ({ moduleId }) => {
     );
   }
 
-  const answeredQuestionIds = new Set(responses.map((r) => r.questionId));
+  const activeDraft = attemptState.activeDraft;
+  const savedMap = activeDraft?.responses || {};
+  const answeredCount = questions.questions.filter(
+    (q) => Boolean(savedMap[String(q.id)])
+  ).length;
   const hasAnsweredAllQuestions =
-    totalQuestions > 0 && responses.length === totalQuestions;
+    totalQuestions > 0 && answeredCount === totalQuestions;
+  const displayAttemptNumber =
+    activeDraft?.attemptNumber || attemptState.completedAttempts.length + 1;
+  const draftInstanceKey = `${activeModuleId}-${activeDraft?.id || 'fresh'}-${draftEpoch}`;
 
-  const trackResponse = (response) => {
-    setResponses((prev) => [
-      ...prev.filter((item) => item.questionId !== response.questionId),
-      response
-    ]);
+  const handleSaveAnswer = async (questionData, userResponse) => {
+    const { attempt } = await saveAttemptAnswer('english_two', {
+      moduleId: activeModuleId,
+      userId,
+      questionData,
+      userResponse,
+      questionCount: totalQuestions
+    });
+
+    setAttemptState((prev) => ({
+      ...prev,
+      activeDraft: attempt
+    }));
+    setConfirmDiscard(false);
 
     if (selectedQuestionId < totalQuestions) {
       setSelectedQuestionId((prev) => Math.min(prev + 1, totalQuestions));
     }
   };
 
-  const updateModulePerformance = async (evt) => {
-    evt.preventDefault();
+  const handleDiscardDraft = async () => {
+    if (!confirmDiscard) {
+      setConfirmDiscard(true);
+      return;
+    }
+
+    const nextState = await discardActiveAttempt('english_two', {
+      attemptId: activeDraft?.id,
+      moduleId: activeModuleId,
+      userId
+    });
+
+    setAttemptState(nextState);
+    setDraftEpoch((prev) => prev + 1);
+    setSelectedQuestionId(1);
+    setConfirmDiscard(false);
+  };
+
+  const handleCompleteAttempt = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
-    const totalPossiblePoints = questions.questions.reduce(
-      (sum, q) => sum + q.totalPossiblePoints,
-      0
-    );
-    const totalPointsEarned = responses.reduce(
-      (sum, r) => sum + r.pointsEarned,
-      0
-    );
-    const scoreRatio =
-      totalPossiblePoints > 0 ? totalPointsEarned / totalPossiblePoints : 0;
+    try {
+      const previousBest = attemptState.summary?.bestOverall ?? null;
+      const totalPossiblePoints = questions.questions.reduce(
+        (sum, q) => sum + (Number(q.totalPossiblePoints) || 1),
+        0
+      );
 
-    const existingPerf = userPerformanceData?.userPerformanceData;
+      const { completedAttempt, summary } = await completeModuleAttempt(
+        'english_two',
+        {
+          attemptId: activeDraft?.id,
+          moduleId: activeModuleId,
+          userId,
+          totalPossiblePoints
+        }
+      );
 
-    if (!existingPerf) {
-      await firstAttemptSubmission('english_two', {
-        firstAttempt: scoreRatio,
-        bestOverall: scoreRatio,
-        moduleId: activeModuleId,
-        userId
+      setSubmittedReceipt({
+        attempt: completedAttempt,
+        previousBest
       });
-    } else if (scoreRatio > Number(existingPerf.bestOverall)) {
-      await modulePerformanceUpdate('english_two', {
-        bestOverall: scoreRatio,
-        moduleId: activeModuleId,
-        userId
+      setAttemptState({
+        activeDraft: null,
+        completedAttempts: summary.completedAttempts,
+        summary
       });
+      setDraftEpoch((prev) => prev + 1);
+      setConfirmDiscard(false);
+    } finally {
+      setIsSubmitting(false);
     }
+  };
 
-    navigate('/english_two/modules');
+  const handleStartRetake = () => {
+    setSubmittedReceipt(null);
+    setSelectedQuestionId(1);
+    setConfirmDiscard(false);
+    setDraftEpoch((prev) => prev + 1);
   };
 
   const renderQuestionComponent = (question, questionNumber) => {
+    const savedEntry = savedMap[String(question.id)];
     const commonProps = {
       questionData: question,
-      recordResponse: trackResponse,
+      savedUserResponse: savedEntry?.userResponse ?? null,
+      onSaveAnswer: handleSaveAnswer,
       questionNumForDisplay: questionNumber,
-      hasSavedResponse: answeredQuestionIds.has(question.id),
+      hasSavedResponse: Boolean(savedEntry),
       isLastQuestion: questionNumber === totalQuestions
     };
 
+    const componentKey = `${draftInstanceKey}-q-${question.id}`;
+
     switch (question.questionType) {
       case 'multi-select':
-        return <MultiSelect {...commonProps} />;
+        return <MultiSelect key={componentKey} {...commonProps} />;
       case 'multiple-choice':
-        return <TraditionalMultipleChoice {...commonProps} />;
+        return <TraditionalMultipleChoice key={componentKey} {...commonProps} />;
       case 'two-part':
-        return <TwoPart {...commonProps} />;
+        return <TwoPart key={componentKey} {...commonProps} />;
       case 'text-entry':
-        return <TextEntry {...commonProps} />;
+        return <TextEntry key={componentKey} {...commonProps} />;
       case 'table-style':
-        return <TableStyle {...commonProps} />;
+        return <TableStyle key={componentKey} {...commonProps} />;
       default:
         return null;
     }
   };
+
+  const receipt = submittedReceipt?.attempt || null;
+  const isNewBest =
+    receipt &&
+    submittedReceipt.previousBest !== null &&
+    receipt.scoreRatio > submittedReceipt.previousBest;
 
   return (
     <div className='EngTwoModule-shell' data-mobile-pane={mobilePane}>
@@ -195,7 +278,7 @@ const EngTwoModule = ({ moduleId }) => {
                 aria-pressed={mobilePane === 'question'}
                 onClick={() => setMobilePane('question')}
               >
-                <span>Q{selectedQuestionId}</span>
+                <span>{receipt ? 'SCORE' : `Q${selectedQuestionId}`}</span>
               </button>
               <button
                 type='button'
@@ -209,9 +292,17 @@ const EngTwoModule = ({ moduleId }) => {
               </button>
             </div>
 
+            {!receipt && (
+              <span className='EngTwoModule-attempt-pill instrument-badge'>
+                ATTEMPT #{displayAttemptNumber}
+              </span>
+            )}
+
             <div className='EngTwoModule-progress instrument-badge'>
               <span>
-                ANSWERED {responses.length} / {totalQuestions}
+                {receipt
+                  ? `SCORE ${(receipt.scoreRatio * 100).toFixed(1)}%`
+                  : `ANSWERED ${answeredCount} / ${totalQuestions}`}
               </span>
             </div>
           </div>
@@ -229,114 +320,259 @@ const EngTwoModule = ({ moduleId }) => {
             className='EngTwoModule-questions-pane'
             aria-label='Assessment Questions'
           >
-            <div className='EngTwoModule-questions-panel'>
-              <div className='EngTwoModule-nav-row'>
-                <div
-                  className='EngTwoModule-questions-navigation'
-                  role='tablist'
-                  aria-label='Question Selector'
-                >
-                  {questions.questions.map((question, index) => {
-                    const questionNumber = index + 1;
-                    const isSelected = questionNumber === selectedQuestionId;
-                    const isAnswered = answeredQuestionIds.has(question.id);
-                    return (
-                      <button
-                        key={question.id}
-                        type='button'
-                        role='tab'
-                        aria-selected={isSelected}
-                        className={`EngTwoModule-questions-navigation-btn instrument-badge ${
-                          isSelected ? 'is-selected' : ''
-                        } ${isAnswered ? 'is-answered' : ''}`}
-                        onClick={() => setSelectedQuestionId(questionNumber)}
-                      >
-                        <span>Q{questionNumber}</span>
-                        <span
-                          className='EngTwoModule-q-dot'
-                          aria-hidden='true'
-                        />
-                      </button>
-                    );
-                  })}
+            {receipt ? (
+              <div className='EngTwoModule-receipt'>
+                <div className='EngTwoModule-receipt-head'>
+                  <div className='EngTwoModule-receipt-badges'>
+                    <span className='EngTwoModule-receipt-eyebrow instrument-badge'>
+                      ATTEMPT #{receipt.attemptNumber} RECORDED
+                    </span>
+                    {isNewBest && (
+                      <span className='EngTwoModule-receipt-best instrument-badge'>
+                        NEW PERSONAL BEST
+                      </span>
+                    )}
+                  </div>
+                  <div className='EngTwoModule-receipt-score-row'>
+                    <span className='EngTwoModule-receipt-pct numeric-readout'>
+                      {(receipt.scoreRatio * 100).toFixed(1)}%
+                    </span>
+                    <span className='EngTwoModule-receipt-pts instrument-badge'>
+                      {receipt.totalPointsEarned} /{' '}
+                      {receipt.totalPossiblePoints} POINTS
+                    </span>
+                  </div>
                 </div>
 
-                <div className='EngTwoModule-steppers'>
+                <div
+                  ref={questionsScrollRef}
+                  className='EngTwoModule-receipt-body'
+                >
+                  <span className='EngTwoModule-receipt-subhead instrument-badge'>
+                    QUESTION BREAKDOWN
+                  </span>
+                  <ul className='EngTwoModule-receipt-list'>
+                    {questions.questions.map((question, idx) => {
+                      const entry = receipt.responses[String(question.id)];
+                      const earned = entry?.pointsEarned ?? 0;
+                      const possible =
+                        entry?.totalPoints ??
+                        (Number(question.totalPossiblePoints) || 1);
+                      const isFull = earned === possible;
+                      const isPartial = earned > 0 && earned < possible;
+
+                      return (
+                        <li
+                          key={question.id}
+                          className={`EngTwoModule-receipt-item ${
+                            isFull
+                              ? 'is-correct'
+                              : isPartial
+                                ? 'is-partial'
+                                : 'is-missed'
+                          }`}
+                        >
+                          <div className='EngTwoModule-receipt-item-meta'>
+                            <span className='EngTwoModule-receipt-q instrument-badge'>
+                              Q{idx + 1}
+                            </span>
+                            {(question.alignedStandards || []).map((std) => (
+                              <span
+                                key={std}
+                                className='EngTwoModule-receipt-teks instrument-badge'
+                              >
+                                {std}
+                              </span>
+                            ))}
+                          </div>
+                          <span className='EngTwoModule-receipt-item-pts numeric-readout'>
+                            {earned} / {possible} PT{possible === 1 ? '' : 'S'}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                <div className='EngTwoModule-receipt-actions'>
                   <button
                     type='button'
-                    className='EngTwoModule-step-btn instrument-badge'
-                    disabled={selectedQuestionId <= 1}
+                    className='EngTwoModule-receipt-primary instrument-badge'
                     onClick={() =>
-                      setSelectedQuestionId((prev) => Math.max(1, prev - 1))
-                    }
-                    aria-label='Previous question'
-                  >
-                    ←
-                  </button>
-                  <button
-                    type='button'
-                    className='EngTwoModule-step-btn instrument-badge'
-                    disabled={selectedQuestionId >= totalQuestions}
-                    onClick={() =>
-                      setSelectedQuestionId((prev) =>
-                        Math.min(totalQuestions, prev + 1)
+                      navigate(
+                        `/english_two/modules/${activeModuleId}/attempts/${receipt.id}`
                       )
                     }
-                    aria-label='Next question'
                   >
-                    →
+                    REVIEW ANSWERS →
+                  </button>
+                  <button
+                    type='button'
+                    className='EngTwoModule-receipt-secondary instrument-badge'
+                    onClick={() => navigate('/profile')}
+                  >
+                    PROFILE LEDGER
+                  </button>
+                  <button
+                    type='button'
+                    className='EngTwoModule-receipt-secondary instrument-badge'
+                    onClick={handleStartRetake}
+                  >
+                    RETAKE #{receipt.attemptNumber + 1}
                   </button>
                 </div>
               </div>
-
-              <div
-                ref={questionsScrollRef}
-                className='EngTwoModule-questions-main'
-              >
-                {questions.questions.map((question, index) => {
-                  const questionNumber = index + 1;
-                  const isSelected = questionNumber === selectedQuestionId;
-
-                  return (
+            ) : (
+              <>
+                <div className='EngTwoModule-questions-panel'>
+                  <div className='EngTwoModule-nav-row'>
                     <div
-                      id={`question-slot-${questionNumber}`}
-                      key={question.id}
-                      className={
-                        isSelected
-                          ? 'EngTwoModule-questions-main-question--selected'
-                          : 'EngTwoModule-questions-main-question'
-                      }
+                      className='EngTwoModule-questions-navigation'
+                      role='tablist'
+                      aria-label='Question Selector'
                     >
-                      {renderQuestionComponent(question, questionNumber)}
+                      {questions.questions.map((question, index) => {
+                        const questionNumber = index + 1;
+                        const isSelected =
+                          questionNumber === selectedQuestionId;
+                        const isAnswered = Boolean(
+                          savedMap[String(question.id)]
+                        );
+                        return (
+                          <button
+                            key={question.id}
+                            type='button'
+                            role='tab'
+                            aria-selected={isSelected}
+                            className={`EngTwoModule-questions-navigation-btn instrument-badge ${
+                              isSelected ? 'is-selected' : ''
+                            } ${isAnswered ? 'is-answered' : ''}`}
+                            onClick={() => setSelectedQuestionId(questionNumber)}
+                          >
+                            <span>Q{questionNumber}</span>
+                            <span
+                              className='EngTwoModule-q-dot'
+                              aria-hidden='true'
+                            />
+                          </button>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
 
-            {hasAnsweredAllQuestions && (
-              <div className='EngTwoModule-final-submission'>
-                <div className='EngTwoModule-final-copy'>
-                  <span className='EngTwoModule-final-badge instrument-badge'>
-                    ALL {totalQuestions} QUESTIONS SAVED
-                  </span>
-                  <p className='EngTwoModule-final-warning'>
-                    Review any question above or submit your final score for
-                    Module {activeModuleId}.
-                  </p>
+                    <div className='EngTwoModule-steppers'>
+                      <button
+                        type='button'
+                        className='EngTwoModule-step-btn instrument-badge'
+                        disabled={selectedQuestionId <= 1}
+                        onClick={() =>
+                          setSelectedQuestionId((prev) => Math.max(1, prev - 1))
+                        }
+                        aria-label='Previous question'
+                      >
+                        ←
+                      </button>
+                      <button
+                        type='button'
+                        className='EngTwoModule-step-btn instrument-badge'
+                        disabled={selectedQuestionId >= totalQuestions}
+                        onClick={() =>
+                          setSelectedQuestionId((prev) =>
+                            Math.min(totalQuestions, prev + 1)
+                          )
+                        }
+                        aria-label='Next question'
+                      >
+                        →
+                      </button>
+                    </div>
+                  </div>
+
+                  {answeredCount > 0 && activeDraft && (
+                    <div className='EngTwoModule-draft-strip'>
+                      <span className='EngTwoModule-draft-status instrument-badge'>
+                        DRAFT SAVED · {answeredCount} / {totalQuestions} READY
+                      </span>
+                      <div className='EngTwoModule-draft-controls'>
+                        {confirmDiscard ? (
+                          <>
+                            <button
+                              type='button'
+                              className='EngTwoModule-draft-btn EngTwoModule-draft-btn--danger instrument-badge'
+                              onClick={handleDiscardDraft}
+                            >
+                              CONFIRM RESET
+                            </button>
+                            <button
+                              type='button'
+                              className='EngTwoModule-draft-btn instrument-badge'
+                              onClick={() => setConfirmDiscard(false)}
+                            >
+                              CANCEL
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type='button'
+                            className='EngTwoModule-draft-btn instrument-badge'
+                            onClick={handleDiscardDraft}
+                          >
+                            START OVER
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div
+                    ref={questionsScrollRef}
+                    className='EngTwoModule-questions-main'
+                  >
+                    {questions.questions.map((question, index) => {
+                      const questionNumber = index + 1;
+                      const isSelected = questionNumber === selectedQuestionId;
+
+                      return (
+                        <div
+                          id={`question-slot-${questionNumber}`}
+                          key={question.id}
+                          className={
+                            isSelected
+                              ? 'EngTwoModule-questions-main-question--selected'
+                              : 'EngTwoModule-questions-main-question'
+                          }
+                        >
+                          {renderQuestionComponent(question, questionNumber)}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <button
-                  type='button'
-                  id='EngTwoModule-questions-final-submit-btn'
-                  className='instrument-badge'
-                  disabled={isSubmitting}
-                  onClick={updateModulePerformance}
-                >
-                  {isSubmitting
-                    ? 'RECORDING SCORE...'
-                    : `SUBMIT MODULE ${activeModuleId}`}
-                </button>
-              </div>
+
+                {hasAnsweredAllQuestions && (
+                  <div className='EngTwoModule-final-submission'>
+                    <div className='EngTwoModule-final-copy'>
+                      <span className='EngTwoModule-final-badge instrument-badge'>
+                        ALL {totalQuestions} QUESTIONS SAVED
+                      </span>
+                      <p className='EngTwoModule-final-warning'>
+                        Review any question above or record Attempt #
+                        {displayAttemptNumber} for Module {activeModuleId}.
+                      </p>
+                    </div>
+                    <button
+                      type='button'
+                      id='EngTwoModule-questions-final-submit-btn'
+                      className='instrument-badge'
+                      disabled={isSubmitting}
+                      onClick={handleCompleteAttempt}
+                    >
+                      {isSubmitting
+                        ? 'RECORDING SCORE...'
+                        : `SUBMIT ATTEMPT #${displayAttemptNumber}`}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </section>
         </div>

@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import submitResponse from '../helpers/submitResponse';
 import QuestionCardHeader from './QuestionCardHeader';
 
 const MultiSelect = ({
   questionData,
-  recordResponse,
+  savedUserResponse,
+  onSaveAnswer,
   questionNumForDisplay,
   hasSavedResponse,
   isLastQuestion
 }) => {
-  const [isChecked, setIsChecked] = useState([]);
+  const [isChecked, setIsChecked] = useState(() =>
+    Array.isArray(savedUserResponse) ? savedUserResponse : []
+  );
 
   const handleChange = (value) => {
     setIsChecked((prev) =>
@@ -21,33 +23,7 @@ const MultiSelect = ({
 
   const captureInput = (evt) => {
     evt.preventDefault();
-
-    const sortedCorrectAnswer = [...questionData.correctAnswer].sort();
-    const sortedUserResponse = [...isChecked].sort();
-
-    const isCorrect =
-      sortedUserResponse.length === sortedCorrectAnswer.length &&
-      sortedUserResponse.every(
-        (element, index) => element === sortedCorrectAnswer[index]
-      );
-
-    const pointsEarned = isCorrect ? 1 : 0;
-
-    submitResponse('english_two', {
-      correctResponse: questionData.correctAnswer,
-      userResponse: sortedUserResponse,
-      totalPoints: 1,
-      pointsEarned,
-      questionId: questionData.id,
-      moduleId: questionData.moduleId,
-      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
-    });
-
-    recordResponse({
-      questionId: questionData.id,
-      totalPoints: 1,
-      pointsEarned
-    });
+    onSaveAnswer(questionData, [...isChecked].sort());
   };
 
   return (

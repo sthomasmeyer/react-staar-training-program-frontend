@@ -1,37 +1,21 @@
 import { useState } from 'react';
-import submitResponse from '../helpers/submitResponse';
 import QuestionCardHeader from './QuestionCardHeader';
 
 const TraditionalMultipleChoice = ({
   questionData,
-  recordResponse,
+  savedUserResponse,
+  onSaveAnswer,
   questionNumForDisplay,
   hasSavedResponse,
   isLastQuestion
 }) => {
-  const [selectedAnswer, setSelectedAnswer] = useState('');
+  const [selectedAnswer, setSelectedAnswer] = useState(
+    () => savedUserResponse?.[0] || ''
+  );
 
   const captureInput = (evt) => {
     evt.preventDefault();
-
-    const isCorrect = selectedAnswer === questionData.correctAnswer[0];
-    const pointsEarned = isCorrect ? 1 : 0;
-
-    submitResponse('english_two', {
-      correctResponse: questionData.correctAnswer,
-      userResponse: [selectedAnswer],
-      totalPoints: 1,
-      pointsEarned,
-      questionId: questionData.id,
-      moduleId: questionData.moduleId,
-      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
-    });
-
-    recordResponse({
-      questionId: questionData.id,
-      totalPoints: 1,
-      pointsEarned
-    });
+    onSaveAnswer(questionData, [selectedAnswer]);
   };
 
   return (
