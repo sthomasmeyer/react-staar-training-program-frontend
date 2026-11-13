@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import submitResponse from '../helpers/submitResponse';
-import '../styles/MultiSelect.css';
+import QuestionCardHeader from './QuestionCardHeader';
 
 const MultiSelect = ({
   questionData,
   recordResponse,
-  questionNumForDisplay
+  questionNumForDisplay,
+  hasSavedResponse,
+  isLastQuestion
 }) => {
   const [isChecked, setIsChecked] = useState([]);
 
-  const handleChange = (evt) => {
-    const { value } = evt.target;
-
+  const handleChange = (value) => {
     setIsChecked((prev) =>
       prev.includes(value)
         ? prev.filter((item) => item !== value)
@@ -51,33 +51,52 @@ const MultiSelect = ({
   };
 
   return (
-    <div className='MultiSelect'>
-      <h3>
-        Q{questionNumForDisplay}: {questionData.question}
-      </h3>
-      {questionData.selectedText ? (
-        <div className='MultiSelect-selected-text'>
-          <p>"{questionData.selectedText}"</p>
+    <div className='QuestionCard'>
+      <QuestionCardHeader
+        questionData={questionData}
+        questionNumForDisplay={questionNumForDisplay}
+        hasSavedResponse={hasSavedResponse}
+      />
+
+      <form className='QuestionCard-form' onSubmit={captureInput}>
+        <div className='QuestionCard-options'>
+          {questionData.answerChoices.map((option, idx) => {
+            const inputId = `q-${questionData.id}-ms-${idx}`;
+            const checked = isChecked.includes(option);
+            return (
+              <label
+                key={option}
+                htmlFor={inputId}
+                className={`QuestionCard-option ${checked ? 'is-selected' : ''}`}
+              >
+                <input
+                  type='checkbox'
+                  id={inputId}
+                  name={option}
+                  value={option}
+                  checked={checked}
+                  onChange={() => handleChange(option)}
+                />
+                <span className='QuestionCard-option-text'>{option}</span>
+              </label>
+            );
+          })}
         </div>
-      ) : null}
-      <form onSubmit={captureInput}>
-        {questionData.answerChoices.map((option, idx) => {
-          const inputId = `q-${questionData.id}-ms-${idx}`;
-          return (
-            <div key={option} className='MultiSelect-option'>
-              <input
-                type='checkbox'
-                id={inputId}
-                name={option}
-                value={option}
-                checked={isChecked.includes(option)}
-                onChange={handleChange}
-              />
-              <label htmlFor={inputId}>{option}</label>
-            </div>
-          );
-        })}
-        <button type='submit'>Submit</button>
+
+        <div className='QuestionCard-actions'>
+          <button
+            type='submit'
+            className='QuestionCard-submit-btn instrument-badge'
+            disabled={isChecked.length === 0}
+          >
+            {isLastQuestion ? 'SAVE RESPONSE' : 'SAVE & NEXT →'}
+          </button>
+          {hasSavedResponse && (
+            <span className='QuestionCard-saved-note instrument-badge'>
+              EDIT & RESAVE ANYTIME
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );

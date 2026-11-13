@@ -1,53 +1,177 @@
-.LoginForm {
-  width: 50%;
-  max-width: 475px;
-  border: 3px solid crimson;
-  margin: 0 auto;
-  padding: 1rem;
-  box-shadow: -2.5px 2.5px 10px crimson;
+.AuthCard {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-top-color: var(--specular-top);
+  box-shadow: var(--shadow-surface);
+  border-radius: 12px;
+  padding: clamp(1.35rem, 2.5vw, 1.85rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  width: 100%;
 }
 
-.LoginForm label {
-  font-weight: bolder;
-  display: inline-block;
-  width: 110px;
+.AuthCard-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.LoginForm input {
-  padding: 2.5px;
-  margin-bottom: 10px;
+.AuthCard-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.02em;
+  color: var(--ink-primary);
 }
 
-.LoginForm button {
-  color: ghostwhite;
-  background-color: #171717;
-  font-weight: bolder;
-  padding: 5px;
-  border-radius: 5%;
+.AuthCard-subtitle {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ink-secondary);
 }
 
-.LoginForm-main {
-  margin-bottom: 1rem;
-  border-bottom: 1.5px solid #171717;
-  padding-bottom: 0.75rem;
+.AuthCard-error {
+  padding: 0.65rem 0.85rem;
+  border-radius: 7px;
+  background-color: var(--accent-subtle);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  font-size: 0.86rem;
+  font-weight: var(--weight-medium);
 }
 
-.LoginForm-main button:focus {
-  background-color: crimson;
+.AuthCard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
 }
 
-.LoginForm-main button:hover {
-  background-color: crimson;
+.AuthCard-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.AuthCard-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+
+.AuthCard-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.55rem 0.78rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--ink-primary);
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  transition:
+    border-color 140ms var(--ease-spring),
+    background-color 140ms var(--ease-spring);
+}
+
+.AuthCard-input:hover,
+.AuthCard-input:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.AuthCard-primary-btn {
+  min-height: 42px;
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.07em;
+  color: var(--keycap-ink);
+  background-color: var(--keycap-bg);
+  border: 1px solid var(--keycap-bg);
+  border-radius: 7px;
   cursor: pointer;
+  transition:
+    background-color 150ms var(--ease-spring),
+    border-color 150ms var(--ease-spring),
+    transform 150ms var(--ease-spring),
+    opacity 150ms var(--ease-spring);
 }
 
-.LoginForm-create-acct button:focus {
-  color: #171717;
-  background-color: ghostwhite;
+.AuthCard-primary-btn:hover:not(:disabled) {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: oklch(99% 0 0);
 }
 
-.LoginForm-create-acct button:hover {
-  color: #171717;
-  background-color: ghostwhite;
+.AuthCard-primary-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.AuthCard-primary-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.AuthCard-demo {
+  padding-top: 0.15rem;
+}
+
+.AuthCard-demo-btn {
+  width: 100%;
+  min-height: 38px;
+  font-family: var(--font-mono);
+  font-size: 0.71rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.05em;
+  color: var(--accent-primary);
+  background-color: var(--accent-subtle);
+  border: 1px solid var(--accent-primary);
+  border-radius: 7px;
+  padding: 0.45rem 0.75rem;
   cursor: pointer;
+  transition:
+    background-color 140ms var(--ease-spring),
+    color 140ms var(--ease-spring);
+}
+
+.AuthCard-demo-btn:hover:not(:disabled) {
+  background-color: var(--accent-primary);
+  color: oklch(99% 0 0);
+}
+
+.AuthCard-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-hairline);
+  font-size: 0.88rem;
+  color: var(--ink-secondary);
+}
+
+.AuthCard-link-btn {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--ink-primary);
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0.38rem 0.7rem;
+  cursor: pointer;
+  transition: border-color 140ms var(--ease-spring);
+}
+
+.AuthCard-link-btn:hover {
+  border-color: var(--accent-primary);
 }

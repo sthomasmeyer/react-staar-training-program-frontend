@@ -1,13 +1,19 @@
-import React from 'react';
+import { LoneStarMark, ThemeToggle } from './BrandIcons';
 import '../styles/LoneStarHeader.css';
 
-// This Component is designed purely for aesthetic purposes, and is meant to be...
-// used as a stand-in for the navbar.
 const LoneStarHeader = () => {
   return (
-    <div className='LoneStarHeader'>
-      <p>{'\u{272F}'}</p>
-    </div>
+    <header className='LoneStarHeader'>
+      <div className='LoneStarHeader-inner'>
+        <div className='LoneStarHeader-brand'>
+          <LoneStarMark />
+          <span className='LoneStarHeader-eyebrow instrument-badge'>
+            TEXAS EDUCATION AGENCY // STAAR 2.0 ENGLISH II
+          </span>
+        </div>
+        <ThemeToggle />
+      </div>
+    </header>
   );
 };
 

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import submitResponse from '../helpers/submitResponse';
+import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TableStyle.css';
 
 const TableStyle = ({
   questionData,
   recordResponse,
-  questionNumForDisplay
+  questionNumForDisplay,
+  hasSavedResponse,
+  isLastQuestion
 }) => {
   const [selectedByRow, setSelectedByRow] = useState({});
 
@@ -51,35 +54,52 @@ const TableStyle = ({
     });
   };
 
+  const allRowsSelected =
+    Object.keys(selectedByRow).length === questionData.answerChoices.length;
+
   return (
-    <div className='TableStyle'>
-      <h3>
-        Q{questionNumForDisplay}: {questionData.directions}
-      </h3>
-      {questionData.selectedText ? (
-        <div className='TableStyle-selected-text'>
-          <p>"{questionData.selectedText}"</p>
-        </div>
-      ) : null}
-      <div className='TableStyle-question'>
-        <p>{questionData.question}</p>
-      </div>
-      <div className='TableStyle-table'>
-        <div className='TableStyle-conditions'>
-          <p id='TableStyle-statement'>Statement</p>{' '}
-          <p>{questionData.conditions[0]}</p>{' '}
-          <p>{questionData.conditions[1]}</p>
-        </div>
-        <form onSubmit={captureInput}>
+    <div className='QuestionCard TableStyle'>
+      <QuestionCardHeader
+        questionData={questionData}
+        questionNumForDisplay={questionNumForDisplay}
+        hasSavedResponse={hasSavedResponse}
+        promptOverride={questionData.directions}
+      />
+
+      {questionData.question && (
+        <p className='QuestionCard-subprompt'>{questionData.question}</p>
+      )}
+
+      <form className='QuestionCard-form' onSubmit={captureInput}>
+        <div className='TableStyle-table'>
+          <div className='TableStyle-row TableStyle-row--head'>
+            <span className='TableStyle-head-cell instrument-badge'>
+              STATEMENT
+            </span>
+            <span className='TableStyle-head-cell is-center instrument-badge'>
+              {questionData.conditions[0]}
+            </span>
+            <span className='TableStyle-head-cell is-center instrument-badge'>
+              {questionData.conditions[1]}
+            </span>
+          </div>
+
           {questionData.answerChoices.map((quote, idx) => {
             const radioGroupName = `q-${questionData.id}-row-${idx}`;
             const trueInputId = `${radioGroupName}-true`;
+            const falseInputId = `${radioGroupName}-false`;
             return (
-              <div key={quote} className='TableStyle-option'>
-                <div className='TableStyle-option-label'>
-                  <label htmlFor={trueInputId}>{quote}</label>
-                </div>
-                <div className='TableStyle-option-checkbox'>
+              <div key={quote} className='TableStyle-row'>
+                <label htmlFor={trueInputId} className='TableStyle-statement'>
+                  {quote}
+                </label>
+
+                <label
+                  htmlFor={trueInputId}
+                  className={`TableStyle-cell ${
+                    selectedByRow[quote] === 'true' ? 'is-selected' : ''
+                  }`}
+                >
                   <input
                     type='radio'
                     id={trueInputId}
@@ -88,22 +108,49 @@ const TableStyle = ({
                     checked={selectedByRow[quote] === 'true'}
                     onChange={() => handleChange(quote, 'true')}
                   />
-                </div>
-                <div className='TableStyle-option-checkbox'>
+                  <span className='TableStyle-mobile-cond'>
+                    {questionData.conditions[0]}
+                  </span>
+                </label>
+
+                <label
+                  htmlFor={falseInputId}
+                  className={`TableStyle-cell ${
+                    selectedByRow[quote] === 'false' ? 'is-selected' : ''
+                  }`}
+                >
                   <input
                     type='radio'
+                    id={falseInputId}
                     name={radioGroupName}
                     value='false'
                     checked={selectedByRow[quote] === 'false'}
                     onChange={() => handleChange(quote, 'false')}
                   />
-                </div>
+                  <span className='TableStyle-mobile-cond'>
+                    {questionData.conditions[1]}
+                  </span>
+                </label>
               </div>
             );
           })}
-          <button type='submit'>Submit</button>
-        </form>
-      </div>
+        </div>
+
+        <div className='QuestionCard-actions'>
+          <button
+            type='submit'
+            className='QuestionCard-submit-btn instrument-badge'
+            disabled={!allRowsSelected}
+          >
+            {isLastQuestion ? 'SAVE RESPONSE' : 'SAVE & NEXT →'}
+          </button>
+          {hasSavedResponse && (
+            <span className='QuestionCard-saved-note instrument-badge'>
+              EDIT & RESAVE ANYTIME
+            </span>
+          )}
+        </div>
+      </form>
     </div>
   );
 };

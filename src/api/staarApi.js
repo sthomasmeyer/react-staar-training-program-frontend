@@ -16,6 +16,8 @@ import {
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || null;
 
+export const IS_REMOTE_API = Boolean(API_BASE_URL);
+
 const DEV_STORAGE_KEY = 'staar-training-dev-store-v1';
 
 function getDefaultDevStore() {

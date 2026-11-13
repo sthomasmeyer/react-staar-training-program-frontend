@@ -1,18 +1,17 @@
 import { useState } from 'react';
 import submitResponse from '../helpers/submitResponse';
+import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TwoPart.css';
 
-const TwoPart = ({ questionData, recordResponse, questionNumForDisplay }) => {
+const TwoPart = ({
+  questionData,
+  recordResponse,
+  questionNumForDisplay,
+  hasSavedResponse,
+  isLastQuestion
+}) => {
   const [selectedAnswerOne, setSelectedAnswerOne] = useState('');
   const [selectedAnswerTwo, setSelectedAnswerTwo] = useState('');
-
-  const handleQuestionOne = (evt) => {
-    setSelectedAnswerOne(evt.target.value);
-  };
-
-  const handleQuestionTwo = (evt) => {
-    setSelectedAnswerTwo(evt.target.value);
-  };
 
   const captureInput = (evt) => {
     evt.preventDefault();
@@ -39,47 +38,89 @@ const TwoPart = ({ questionData, recordResponse, questionNumForDisplay }) => {
   };
 
   return (
-    <div className='TwoPart'>
-      <form onSubmit={captureInput}>
-        <h3>
-          Q{questionNumForDisplay}, Part A: {questionData.question[0]}
-        </h3>
-        {questionData.answerChoices[0].map((option, idx) => {
-          const inputId = `q-${questionData.id}-part-a-${idx}`;
-          return (
-            <div key={option} className='TwoPart-option'>
-              <input
-                type='radio'
-                id={inputId}
-                name={`TwoPartQ1-${questionData.id}`}
-                value={option}
-                checked={selectedAnswerOne === option}
-                onChange={handleQuestionOne}
-              />
-              <label htmlFor={inputId}>{option}</label>
-            </div>
-          );
-        })}
-        <h3>
-          Q{questionNumForDisplay}, Part B: {questionData.question[1]}
-        </h3>
-        {questionData.answerChoices[1].map((option, idx) => {
-          const inputId = `q-${questionData.id}-part-b-${idx}`;
-          return (
-            <div key={option} className='TwoPart-option'>
-              <input
-                type='radio'
-                id={inputId}
-                name={`TwoPartQ2-${questionData.id}`}
-                value={option}
-                checked={selectedAnswerTwo === option}
-                onChange={handleQuestionTwo}
-              />
-              <label htmlFor={inputId}>{option}</label>
-            </div>
-          );
-        })}
-        <button type='submit'>Submit</button>
+    <div className='QuestionCard TwoPart'>
+      <QuestionCardHeader
+        questionData={questionData}
+        questionNumForDisplay={questionNumForDisplay}
+        hasSavedResponse={hasSavedResponse}
+        promptOverride=''
+      />
+
+      <form className='QuestionCard-form' onSubmit={captureInput}>
+        <fieldset className='TwoPart-section'>
+          <legend className='TwoPart-legend'>
+            <span className='TwoPart-part-pill instrument-badge'>PART A</span>
+            <span>{questionData.question[0]}</span>
+          </legend>
+          <div className='QuestionCard-options'>
+            {questionData.answerChoices[0].map((option, idx) => {
+              const inputId = `q-${questionData.id}-part-a-${idx}`;
+              const checked = selectedAnswerOne === option;
+              return (
+                <label
+                  key={option}
+                  htmlFor={inputId}
+                  className={`QuestionCard-option ${checked ? 'is-selected' : ''}`}
+                >
+                  <input
+                    type='radio'
+                    id={inputId}
+                    name={`TwoPartQ1-${questionData.id}`}
+                    value={option}
+                    checked={checked}
+                    onChange={(evt) => setSelectedAnswerOne(evt.target.value)}
+                  />
+                  <span className='QuestionCard-option-text'>{option}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <fieldset className='TwoPart-section'>
+          <legend className='TwoPart-legend'>
+            <span className='TwoPart-part-pill instrument-badge'>PART B</span>
+            <span>{questionData.question[1]}</span>
+          </legend>
+          <div className='QuestionCard-options'>
+            {questionData.answerChoices[1].map((option, idx) => {
+              const inputId = `q-${questionData.id}-part-b-${idx}`;
+              const checked = selectedAnswerTwo === option;
+              return (
+                <label
+                  key={option}
+                  htmlFor={inputId}
+                  className={`QuestionCard-option ${checked ? 'is-selected' : ''}`}
+                >
+                  <input
+                    type='radio'
+                    id={inputId}
+                    name={`TwoPartQ2-${questionData.id}`}
+                    value={option}
+                    checked={checked}
+                    onChange={(evt) => setSelectedAnswerTwo(evt.target.value)}
+                  />
+                  <span className='QuestionCard-option-text'>{option}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        <div className='QuestionCard-actions'>
+          <button
+            type='submit'
+            className='QuestionCard-submit-btn instrument-badge'
+            disabled={!selectedAnswerOne || !selectedAnswerTwo}
+          >
+            {isLastQuestion ? 'SAVE RESPONSE' : 'SAVE & NEXT →'}
+          </button>
+          {hasSavedResponse && (
+            <span className='QuestionCard-saved-note instrument-badge'>
+              EDIT & RESAVE ANYTIME
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );

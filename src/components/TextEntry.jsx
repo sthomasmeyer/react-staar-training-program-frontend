@@ -1,15 +1,22 @@
 import { useState } from 'react';
 import submitResponse from '../helpers/submitResponse';
+import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TextEntry.css';
 
-const TextEntry = ({ questionData, recordResponse, questionNumForDisplay }) => {
+const TextEntry = ({
+  questionData,
+  recordResponse,
+  questionNumForDisplay,
+  hasSavedResponse,
+  isLastQuestion
+}) => {
   const [userGeneratedAnswer, setUserGeneratedAnswer] = useState('');
 
   const ncmpltStatement = questionData.incompleteStatement.split('<input>');
+  const promptText = questionData.question || questionData.directions;
 
   const handleChange = (evt) => {
-    const { value } = evt.target;
-    const cleanVal = value.toLowerCase().replace(/\s+/g, '');
+    const cleanVal = evt.target.value.toLowerCase().replace(/\s+/g, '');
     setUserGeneratedAnswer(cleanVal);
   };
 
@@ -37,37 +44,49 @@ const TextEntry = ({ questionData, recordResponse, questionNumForDisplay }) => {
   };
 
   return (
-    <div className='TextEntry'>
-      {questionData.question ? (
-        <h3>
-          Q{questionNumForDisplay}: {questionData.question}
-        </h3>
-      ) : (
-        <h3>
-          Q{questionNumForDisplay}: {questionData.directions}
-        </h3>
-      )}
-      {questionData.selectedText ? (
-        <div className='TextEntry-selected-text'>
-          <p>"{questionData.selectedText}"</p>
-        </div>
-      ) : null}
-      <div className='TextEntry-incomplete-statement'>
-        <form onSubmit={captureInput}>
-          <p>
+    <div className='QuestionCard TextEntry'>
+      <QuestionCardHeader
+        questionData={questionData}
+        questionNumForDisplay={questionNumForDisplay}
+        hasSavedResponse={hasSavedResponse}
+        promptOverride={promptText}
+      />
+
+      <form className='QuestionCard-form' onSubmit={captureInput}>
+        <div className='TextEntry-slot-card'>
+          <p className='TextEntry-sentence'>
             {ncmpltStatement[0]}
             <input
               type='text'
               id={`text-entry-${questionData.id}`}
+              className='TextEntry-input'
               name='userGeneratedAnswer'
               value={userGeneratedAnswer}
               onChange={handleChange}
+              placeholder='type word'
+              aria-label='Enter missing word from passage'
+              autoComplete='off'
+              spellCheck='false'
             />
             {ncmpltStatement[1]}
           </p>
-          <button type='submit'>Submit</button>
-        </form>
-      </div>
+        </div>
+
+        <div className='QuestionCard-actions'>
+          <button
+            type='submit'
+            className='QuestionCard-submit-btn instrument-badge'
+            disabled={!userGeneratedAnswer.trim()}
+          >
+            {isLastQuestion ? 'SAVE RESPONSE' : 'SAVE & NEXT →'}
+          </button>
+          {hasSavedResponse && (
+            <span className='QuestionCard-saved-note instrument-badge'>
+              EDIT & RESAVE ANYTIME
+            </span>
+          )}
+        </div>
+      </form>
     </div>
   );
 };
