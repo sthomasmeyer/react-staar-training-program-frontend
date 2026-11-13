@@ -67,6 +67,24 @@
   padding: 0.22rem 0.52rem;
 }
 
+.ModulePreview-status-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ModulePreview-draft {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.05em;
+  color: var(--accent-primary);
+  background-color: var(--accent-subtle);
+  border-radius: 999px;
+  padding: 0.22rem 0.6rem;
+}
+
 .ModulePreview-score {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -150,11 +168,24 @@
 
 .ModulePreview-footer {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding-top: 0.35rem;
 }
 
+.ModulePreview-attempts-note {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  order: -1;
+}
+
 .ModulePreview-cta {
+  margin-left: auto;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: var(--weight-semibold);

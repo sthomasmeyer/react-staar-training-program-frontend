@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import useModuleList from '../hooks/useModuleList';
-import useAllPerformanceDataByUser from '../hooks/useAllPerformanceDataByUser';
+import useUserLedger from '../hooks/useUserLedger';
 import ModulePreview from '../components/ModulePreview';
 import NavBar from './NavBar';
 import '../styles/ListOfModules.css';
@@ -10,7 +10,7 @@ import '../styles/ListOfModules.css';
 const ListOfModules = ({ subject }) => {
   const userId = sessionStorage.getItem('staar-training-platform-user-id');
   const modules = useModuleList(subject);
-  const allPerformanceData = useAllPerformanceDataByUser(subject, userId);
+  const { ledger } = useUserLedger(subject, userId);
 
   if (!modules) {
     return (
@@ -23,11 +23,6 @@ const ListOfModules = ({ subject }) => {
         </main>
       </div>
     );
-  }
-
-  const performanceByModule = {};
-  for (const item of allPerformanceData?.allPerformanceData || []) {
-    performanceByModule[item.moduleId] = item;
   }
 
   return (
@@ -59,7 +54,7 @@ const ListOfModules = ({ subject }) => {
               <ModulePreview
                 subject={subject}
                 id={module.id}
-                performance={performanceByModule[module.id] || null}
+                moduleSummary={ledger?.byModule?.[module.id] || null}
               />
             </NavLink>
           ))}

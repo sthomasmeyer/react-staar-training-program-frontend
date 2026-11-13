@@ -3,7 +3,7 @@ import useTextByModuleId from '../hooks/useTextByModuleId';
 import useQuestionsByModuleId from '../hooks/useQuestionsByModuleId';
 import '../styles/ModulePreview.css';
 
-const ModulePreview = ({ subject, id, performance }) => {
+const ModulePreview = ({ subject, id, moduleSummary }) => {
   const moduleData = useModuleBySubjectAndId(subject, id);
   const text = useTextByModuleId(id);
   const questions = useQuestionsByModuleId(id);
@@ -28,6 +28,21 @@ const ModulePreview = ({ subject, id, performance }) => {
     ? text.text.genre.toUpperCase()
     : 'PASSAGE';
 
+  const activeDraft = moduleSummary?.activeDraft || null;
+  const draftAnsweredCount = activeDraft
+    ? Object.keys(activeDraft.responses || {}).length
+    : 0;
+  const attemptCount = moduleSummary?.attemptCount || 0;
+  const hasBestScore =
+    attemptCount > 0 && moduleSummary?.bestOverall !== null;
+
+  const ctaLabel =
+    draftAnsweredCount > 0
+      ? `RESUME ATTEMPT #${activeDraft.attemptNumber} →`
+      : attemptCount > 0
+        ? `START ATTEMPT #${attemptCount + 1} →`
+        : 'BEGIN MODULE →';
+
   return (
     <article className='ModulePreview'>
       <div className='ModulePreview-top'>
@@ -40,11 +55,18 @@ const ModulePreview = ({ subject, id, performance }) => {
           </span>
         </div>
 
-        {performance && (
-          <span className='ModulePreview-score instrument-badge'>
-            BEST {(Number(performance.bestOverall) * 100).toFixed(0)}%
-          </span>
-        )}
+        <div className='ModulePreview-status-group'>
+          {draftAnsweredCount > 0 && (
+            <span className='ModulePreview-draft instrument-badge'>
+              IN PROGRESS {draftAnsweredCount}/{questions.questions.length}
+            </span>
+          )}
+          {hasBestScore && (
+            <span className='ModulePreview-score instrument-badge'>
+              BEST {(Number(moduleSummary.bestOverall) * 100).toFixed(0)}%
+            </span>
+          )}
+        </div>
       </div>
 
       <div className='ModulePreview-heading'>
@@ -74,9 +96,12 @@ const ModulePreview = ({ subject, id, performance }) => {
       </div>
 
       <div className='ModulePreview-footer'>
-        <span className='ModulePreview-cta instrument-badge'>
-          BEGIN MODULE →
-        </span>
+        <span className='ModulePreview-cta instrument-badge'>{ctaLabel}</span>
+        {attemptCount > 0 && (
+          <span className='ModulePreview-attempts-note instrument-badge'>
+            {attemptCount} COMPLETED
+          </span>
+        )}
       </div>
     </article>
   );

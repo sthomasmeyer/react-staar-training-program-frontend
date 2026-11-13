@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import submitResponse from '../helpers/submitResponse';
 import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TextEntry.css';
 
 const TextEntry = ({
   questionData,
-  recordResponse,
+  savedUserResponse,
+  onSaveAnswer,
   questionNumForDisplay,
   hasSavedResponse,
   isLastQuestion
 }) => {
-  const [userGeneratedAnswer, setUserGeneratedAnswer] = useState('');
+  const [userGeneratedAnswer, setUserGeneratedAnswer] = useState(
+    () => savedUserResponse?.[0] || ''
+  );
 
   const ncmpltStatement = questionData.incompleteStatement.split('<input>');
   const promptText = questionData.question || questionData.directions;
@@ -22,25 +24,7 @@ const TextEntry = ({
 
   const captureInput = (evt) => {
     evt.preventDefault();
-
-    const isCorrect = userGeneratedAnswer === questionData.correctAnswer[0];
-    const pointsEarned = isCorrect ? 1 : 0;
-
-    submitResponse('english_two', {
-      correctResponse: questionData.correctAnswer,
-      userResponse: [userGeneratedAnswer],
-      totalPoints: 1,
-      pointsEarned,
-      questionId: questionData.id,
-      moduleId: questionData.moduleId,
-      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
-    });
-
-    recordResponse({
-      questionId: questionData.id,
-      totalPoints: 1,
-      pointsEarned
-    });
+    onSaveAnswer(questionData, [userGeneratedAnswer]);
   };
 
   return (

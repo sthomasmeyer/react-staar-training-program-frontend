@@ -1,16 +1,29 @@
 import { useState } from 'react';
-import submitResponse from '../helpers/submitResponse';
 import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TableStyle.css';
 
+const buildInitialRows = (choices, savedUserResponse) => {
+  if (!Array.isArray(savedUserResponse)) {
+    return {};
+  }
+  const initial = {};
+  for (const quote of choices) {
+    initial[quote] = savedUserResponse.includes(quote) ? 'true' : 'false';
+  }
+  return initial;
+};
+
 const TableStyle = ({
   questionData,
-  recordResponse,
+  savedUserResponse,
+  onSaveAnswer,
   questionNumForDisplay,
   hasSavedResponse,
   isLastQuestion
 }) => {
-  const [selectedByRow, setSelectedByRow] = useState({});
+  const [selectedByRow, setSelectedByRow] = useState(() =>
+    buildInitialRows(questionData.answerChoices, savedUserResponse)
+  );
 
   const handleChange = (quote, value) => {
     setSelectedByRow((prev) => ({
@@ -21,37 +34,12 @@ const TableStyle = ({
 
   const captureInput = (evt) => {
     evt.preventDefault();
-
     const isSelected = Object.entries(selectedByRow)
       .filter(([, value]) => value === 'true')
-      .map(([quote]) => quote);
+      .map(([quote]) => quote)
+      .sort();
 
-    const sortedCorrectAnswer = [...questionData.correctAnswer].sort();
-    const sortedUserResponse = [...isSelected].sort();
-
-    const isCorrect =
-      sortedUserResponse.length === sortedCorrectAnswer.length &&
-      sortedUserResponse.every(
-        (element, index) => element === sortedCorrectAnswer[index]
-      );
-
-    const pointsEarned = isCorrect ? 1 : 0;
-
-    submitResponse('english_two', {
-      correctResponse: questionData.correctAnswer,
-      userResponse: sortedUserResponse,
-      totalPoints: 1,
-      pointsEarned,
-      questionId: questionData.id,
-      moduleId: questionData.moduleId,
-      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
-    });
-
-    recordResponse({
-      questionId: questionData.id,
-      totalPoints: 1,
-      pointsEarned
-    });
+    onSaveAnswer(questionData, isSelected);
   };
 
   const allRowsSelected =

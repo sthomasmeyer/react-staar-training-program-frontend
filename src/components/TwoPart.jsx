@@ -1,40 +1,25 @@
 import { useState } from 'react';
-import submitResponse from '../helpers/submitResponse';
 import QuestionCardHeader from './QuestionCardHeader';
 import '../styles/TwoPart.css';
 
 const TwoPart = ({
   questionData,
-  recordResponse,
+  savedUserResponse,
+  onSaveAnswer,
   questionNumForDisplay,
   hasSavedResponse,
   isLastQuestion
 }) => {
-  const [selectedAnswerOne, setSelectedAnswerOne] = useState('');
-  const [selectedAnswerTwo, setSelectedAnswerTwo] = useState('');
+  const [selectedAnswerOne, setSelectedAnswerOne] = useState(
+    () => savedUserResponse?.[0] || ''
+  );
+  const [selectedAnswerTwo, setSelectedAnswerTwo] = useState(
+    () => savedUserResponse?.[1] || ''
+  );
 
   const captureInput = (evt) => {
     evt.preventDefault();
-
-    const partOneCorrect = selectedAnswerOne === questionData.correctAnswer[0];
-    const partTwoCorrect = selectedAnswerTwo === questionData.correctAnswer[1];
-    const pointsEarned = (partOneCorrect ? 1 : 0) + (partTwoCorrect ? 1 : 0);
-
-    submitResponse('english_two', {
-      correctResponse: questionData.correctAnswer,
-      userResponse: [selectedAnswerOne, selectedAnswerTwo],
-      totalPoints: 2,
-      pointsEarned,
-      questionId: questionData.id,
-      moduleId: questionData.moduleId,
-      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
-    });
-
-    recordResponse({
-      questionId: questionData.id,
-      totalPoints: 2,
-      pointsEarned
-    });
+    onSaveAnswer(questionData, [selectedAnswerOne, selectedAnswerTwo]);
   };
 
   return (
