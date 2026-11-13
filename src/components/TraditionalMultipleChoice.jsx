@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import submitResponse from '../helpers/submitResponse';
-import '../styles/TraditionalMultipleChoice.css';
+import QuestionCardHeader from './QuestionCardHeader';
 
 const TraditionalMultipleChoice = ({
   questionData,
   recordResponse,
-  questionNumForDisplay
+  questionNumForDisplay,
+  hasSavedResponse,
+  isLastQuestion
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState('');
-
-  const handleChange = (evt) => {
-    setSelectedAnswer(evt.target.value);
-  };
 
   const captureInput = (evt) => {
     evt.preventDefault();
@@ -37,28 +35,52 @@ const TraditionalMultipleChoice = ({
   };
 
   return (
-    <div className='TraditionalMultipleChoice'>
-      <h3>
-        Q{questionNumForDisplay}: {questionData.question}
-      </h3>
-      <form onSubmit={captureInput}>
-        {questionData.answerChoices.map((option, idx) => {
-          const inputId = `q-${questionData.id}-mc-${idx}`;
-          return (
-            <div key={option} className='TraditionalMultipleChoice-option'>
-              <input
-                type='radio'
-                id={inputId}
-                name={`TraditionalMultipleChoice-${questionData.id}`}
-                value={option}
-                checked={selectedAnswer === option}
-                onChange={handleChange}
-              />
-              <label htmlFor={inputId}>{option}</label>
-            </div>
-          );
-        })}
-        <button type='submit'>Submit</button>
+    <div className='QuestionCard'>
+      <QuestionCardHeader
+        questionData={questionData}
+        questionNumForDisplay={questionNumForDisplay}
+        hasSavedResponse={hasSavedResponse}
+      />
+
+      <form className='QuestionCard-form' onSubmit={captureInput}>
+        <div className='QuestionCard-options'>
+          {questionData.answerChoices.map((option, idx) => {
+            const inputId = `q-${questionData.id}-mc-${idx}`;
+            const checked = selectedAnswer === option;
+            return (
+              <label
+                key={option}
+                htmlFor={inputId}
+                className={`QuestionCard-option ${checked ? 'is-selected' : ''}`}
+              >
+                <input
+                  type='radio'
+                  id={inputId}
+                  name={`TraditionalMultipleChoice-${questionData.id}`}
+                  value={option}
+                  checked={checked}
+                  onChange={(evt) => setSelectedAnswer(evt.target.value)}
+                />
+                <span className='QuestionCard-option-text'>{option}</span>
+              </label>
+            );
+          })}
+        </div>
+
+        <div className='QuestionCard-actions'>
+          <button
+            type='submit'
+            className='QuestionCard-submit-btn instrument-badge'
+            disabled={!selectedAnswer}
+          >
+            {isLastQuestion ? 'SAVE RESPONSE' : 'SAVE & NEXT →'}
+          </button>
+          {hasSavedResponse && (
+            <span className='QuestionCard-saved-note instrument-badge'>
+              EDIT & RESAVE ANYTIME
+            </span>
+          )}
+        </div>
       </form>
     </div>
   );

@@ -1,33 +1,38 @@
-.TwoPart {
-  /* width: 1000px; */
-  width: 90%;
-  border: 3px solid #171717;
-  margin: 0 auto;
-  margin-top: 15px;
-  margin-bottom: 15px;
-  padding: 10px;
-  padding-top: 0;
+.TwoPart-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.TwoPart h3 {
-  margin-bottom: 10px;
+.TwoPart-section + .TwoPart-section {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-hairline);
 }
 
-.TwoPart-option {
-  padding: 5px;
+.TwoPart-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0;
+  margin-bottom: 0.2rem;
+  font-family: var(--font-sans);
+  font-size: 0.98rem;
+  font-weight: var(--weight-semibold);
+  line-height: 1.42;
+  color: var(--ink-primary);
 }
 
-.TwoPart button {
-  margin-top: 12.5px;
-  border-radius: 5%;
-  padding: 5px;
-  color: ghostwhite;
-  background-color: #171717;
-  font-weight: bolder;
-}
-
-.TwoPart button:hover {
-  cursor: pointer;
-  color: #171717;
-  background-color: ghostwhite;
+.TwoPart-part-pill {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  color: var(--accent-primary);
+  background-color: var(--accent-subtle);
+  border-radius: 4px;
+  padding: 0.16rem 0.45rem;
 }

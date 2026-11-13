@@ -1,0 +1,201 @@
+.QuestionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  width: 100%;
+}
+
+.QuestionCard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.QuestionCard-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.QuestionCard-index {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--ink-primary);
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 5px;
+  padding: 0.22rem 0.5rem;
+}
+
+.QuestionCard-type {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.07em;
+  color: var(--ink-secondary);
+  text-transform: uppercase;
+}
+
+.QuestionCard-teks {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--accent-primary);
+  background-color: var(--accent-subtle);
+  border-radius: 5px;
+  padding: 0.22rem 0.5rem;
+}
+
+.QuestionCard-status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--success-primary);
+  background-color: var(--success-subtle);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+}
+
+.QuestionCard-prompt {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.015em;
+  line-height: 1.4;
+  color: var(--ink-primary);
+  max-width: 62ch;
+}
+
+.QuestionCard-subprompt {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-sans);
+  font-size: 0.96rem;
+  font-weight: var(--weight-medium);
+  line-height: 1.45;
+  color: var(--ink-primary);
+  max-width: 62ch;
+}
+
+.QuestionCard-excerpt {
+  margin: 0;
+  padding: 0.85rem 1.05rem;
+  background-color: var(--bg-recessed);
+  border-left: 3px solid var(--accent-primary);
+  border-radius: 0 8px 8px 0;
+  font-family: var(--font-passage);
+  font-size: 0.96rem;
+  font-style: italic;
+  line-height: 1.62;
+  color: var(--ink-secondary);
+  max-width: 65ch;
+  text-wrap: pretty;
+}
+
+.QuestionCard-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+}
+
+.QuestionCard-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.QuestionCard-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 0.75rem 0.9rem;
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-hairline);
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    border-color 140ms var(--ease-spring),
+    background-color 140ms var(--ease-spring);
+}
+
+.QuestionCard-option:hover {
+  border-color: var(--border-strong);
+}
+
+.QuestionCard-option.is-selected {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent-primary);
+}
+
+.QuestionCard-option input {
+  margin: 0.22rem 0 0;
+  accent-color: var(--accent-primary);
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.QuestionCard-option-text {
+  font-family: var(--font-sans);
+  font-size: 0.935rem;
+  line-height: 1.48;
+  color: var(--ink-primary);
+  flex: 1;
+}
+
+.QuestionCard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-top: 0.4rem;
+}
+
+.QuestionCard-submit-btn {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--keycap-ink);
+  background-color: var(--keycap-bg);
+  border: 1px solid var(--keycap-bg);
+  border-radius: 7px;
+  padding: 0.62rem 1.1rem;
+  cursor: pointer;
+  transition:
+    background-color 150ms var(--ease-spring),
+    border-color 150ms var(--ease-spring),
+    transform 150ms var(--ease-spring),
+    opacity 150ms var(--ease-spring);
+}
+
+.QuestionCard-submit-btn:hover:not(:disabled) {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: oklch(99% 0 0);
+}
+
+.QuestionCard-submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.QuestionCard-submit-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.QuestionCard-saved-note {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--success-primary);
+}

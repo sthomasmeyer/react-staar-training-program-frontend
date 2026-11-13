@@ -3,7 +3,7 @@ import useTextByModuleId from '../hooks/useTextByModuleId';
 import useQuestionsByModuleId from '../hooks/useQuestionsByModuleId';
 import '../styles/ModulePreview.css';
 
-const ModulePreview = ({ subject, id }) => {
+const ModulePreview = ({ subject, id, performance }) => {
   const moduleData = useModuleBySubjectAndId(subject, id);
   const text = useTextByModuleId(id);
   const questions = useQuestionsByModuleId(id);
@@ -11,44 +11,74 @@ const ModulePreview = ({ subject, id }) => {
   const moduleInfo = moduleData?.targetModule?.[0];
 
   if (!text || !questions || !moduleInfo) {
-    return <h3>Loading...</h3>;
+    return (
+      <article className='ModulePreview ModulePreview--loading'>
+        <span className='instrument-badge'>SYNCING MODULE {id}…</span>
+      </article>
+    );
   }
 
+  const uniqueStandards = Array.from(
+    new Set(
+      questions.questions.flatMap((question) => question.alignedStandards || [])
+    )
+  );
+  const moduleIndex = String(moduleInfo.id).padStart(2, '0');
+  const genreLabel = text.text.genre
+    ? text.text.genre.toUpperCase()
+    : 'PASSAGE';
+
   return (
-    <div className='ModulePreview'>
-      <div className='ModulePreview-banner'>
-        <h1>{moduleInfo.id}</h1>
-        <h1>{moduleInfo.moduleName}</h1>
-      </div>
-      <div className='ModulePreview-text'>
-        {text.text.publicationDate ? (
-          <h2>
-            Featured Text: "{text.text.title}" ({text.text.publicationDate})
-          </h2>
-        ) : (
-          <h2>Featured Text: "{text.text.title}"</h2>
+    <article className='ModulePreview'>
+      <div className='ModulePreview-top'>
+        <div className='ModulePreview-badges'>
+          <span className='ModulePreview-index instrument-badge'>
+            MODULE {moduleIndex}
+          </span>
+          <span className='ModulePreview-genre instrument-badge'>
+            {genreLabel}
+          </span>
+        </div>
+
+        {performance && (
+          <span className='ModulePreview-score instrument-badge'>
+            BEST {(Number(performance.bestOverall) * 100).toFixed(0)}%
+          </span>
         )}
-        {text.text.author ? (
-          <h3>
-            <em>Author: {text.text.author}</em>
-          </h3>
-        ) : null}
-        <div className='ModulePreview-text-border'></div>
       </div>
-      <div className='ModulePreview-questions'>
-        <h2>{questions.questions.length} Questions</h2>
-        <h4>Aligned TEKS: </h4>
-        <ul>
-          {questions.questions.length > 0 ? (
-            questions.questions.map((question) => (
-              <li key={question.id}>{question.alignedStandards?.join(', ')}</li>
-            ))
-          ) : (
-            <li>You'll find no aligned standards here, my friend.</li>
-          )}
+
+      <div className='ModulePreview-heading'>
+        <span className='ModulePreview-category instrument-badge'>
+          {moduleInfo.moduleName}
+        </span>
+        <h2 className='ModulePreview-passage-title'>
+          “{text.text.title}”
+          {text.text.publicationDate ? ` (${text.text.publicationDate})` : ''}
+        </h2>
+        {text.text.author && (
+          <p className='ModulePreview-author'>By {text.text.author}</p>
+        )}
+      </div>
+
+      <div className='ModulePreview-teks-block'>
+        <span className='ModulePreview-teks-label instrument-badge'>
+          {questions.questions.length} QUESTIONS // ALIGNED TEKS
+        </span>
+        <ul className='ModulePreview-teks-list'>
+          {uniqueStandards.map((std) => (
+            <li key={std} className='ModulePreview-teks-chip instrument-badge'>
+              {std}
+            </li>
+          ))}
         </ul>
       </div>
-    </div>
+
+      <div className='ModulePreview-footer'>
+        <span className='ModulePreview-cta instrument-badge'>
+          BEGIN MODULE →
+        </span>
+      </div>
+    </article>
   );
 };
 

@@ -1,7 +1,115 @@
+/*
+ * Global Design System: Literary Atelier OKLCH & Editorial Typography
+ * ---------------------------------------------------------------------------
+ * Defines semantic OKLCH light/dark surface, ink, and accent tokens, continuous
+ * variable font weight ranges, Dark Mode weight compensation, and shared
+ * instrumentation primitives across all routes.
+ */
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --font-passage: var(--font-serif);
+  --font-display: var(--font-sans);
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --bg-canvas: oklch(98.2% 0.005 88);
+  --bg-surface: oklch(99.6% 0.002 90);
+  --bg-recessed: oklch(94.6% 0.008 86);
+  --bg-passage: oklch(99.2% 0.003 88);
+  --ink-primary: oklch(20.5% 0.008 75);
+  --ink-secondary: oklch(44% 0.01 80);
+  --ink-muted: oklch(58% 0.01 80);
+  --accent-primary: oklch(55.5% 0.185 28);
+  --accent-hover: oklch(49.5% 0.195 28);
+  --accent-subtle: oklch(55.5% 0.185 28 / 0.11);
+  --success-primary: oklch(48% 0.135 152);
+  --success-subtle: oklch(48% 0.135 152 / 0.12);
+  --keycap-bg: oklch(21% 0.008 75);
+  --keycap-ink: oklch(98.2% 0.005 88);
+  --border-hairline: oklch(20.5% 0.008 75 / 0.1);
+  --border-strong: oklch(20.5% 0.008 75 / 0.22);
+  --specular-top: oklch(100% 0 0 / 0.85);
+  --shadow-surface:
+    0 1px 2px oklch(20.5% 0.008 75 / 0.05),
+    0 10px 28px -6px oklch(20.5% 0.008 75 / 0.07);
+
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  font-family: var(--font-sans);
+  font-weight: var(--weight-regular);
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  font-synthesis: none;
+  font-feature-settings: "calt" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv11" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--ink-primary);
+  background-color: var(--bg-canvas);
+}
+
+:root[data-theme='dark'] {
+  /* WHY: Step variable weights down 25-30 units in dark mode to prevent light
+     glyphs on dark surfaces from blooming visually due to retinal halation. */
+  --weight-regular: 375;
+  --weight-medium: 470;
+  --weight-semibold: 570;
+
+  --bg-canvas: oklch(16.5% 0.005 85);
+  --bg-surface: oklch(21.2% 0.006 85);
+  --bg-recessed: oklch(14% 0.004 85);
+  --bg-passage: oklch(19.5% 0.006 85);
+  --ink-primary: oklch(94% 0.006 85);
+  --ink-secondary: oklch(72% 0.008 85);
+  --ink-muted: oklch(57% 0.008 85);
+  --accent-primary: oklch(69% 0.175 34);
+  --accent-hover: oklch(74% 0.175 34);
+  --accent-subtle: oklch(69% 0.175 34 / 0.16);
+  --success-primary: oklch(70% 0.14 152);
+  --success-subtle: oklch(70% 0.14 152 / 0.16);
+  --keycap-bg: oklch(94% 0.006 85);
+  --keycap-ink: oklch(16.5% 0.005 85);
+  --border-hairline: oklch(100% 0 0 / 0.09);
+  --border-strong: oklch(100% 0 0 / 0.2);
+  --specular-top: oklch(100% 0 0 / 0.08);
+  --shadow-surface: 0 0 0 1px oklch(100% 0 0 / 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  font-family: 'Lato', sans-serif;
-  background-color: ghostwhite;
-  color: #171717;
   margin: 0;
   padding: 0;
+  min-height: 100dvh;
+  background-color: var(--bg-canvas);
+  color: var(--ink-primary);
+  transition:
+    background-color 180ms var(--ease-spring),
+    color 180ms var(--ease-spring);
+}
+
+.numeric-readout,
+.instrument-badge {
+  font-variant-numeric: tabular-nums slashed-zero;
+  font-feature-settings: "calt" 1, "case" 1, "cv02" 1, "cv03" 1, "cv04" 1, "cv11" 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

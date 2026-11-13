@@ -1,17 +1,72 @@
 .LoneStarHeader {
-  color: ghostwhite;
-  background-color: #171717;
-  height: 3rem;
-  width: 100%;
-  position: fixed;
+  position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 20;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
-.LoneStarHeader p {
-  height: 3rem;
-  line-height: 3rem;
-  text-align: center;
-  font-size: 2.25rem;
-  margin-top: 0;
+.LoneStarHeader-inner {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0.75rem clamp(1rem, 3vw, 2.25rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.LoneStarHeader-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.Brand-star-icon {
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.LoneStarHeader-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.08em;
+  color: var(--ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ThemeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.06em;
+  color: var(--ink-primary);
+  background-color: var(--bg-recessed);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0.38rem 0.72rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    border-color 140ms var(--ease-spring),
+    transform 140ms var(--ease-spring);
+}
+
+.ThemeToggle:hover {
+  border-color: var(--accent-primary);
+}
+
+.ThemeToggle:active {
+  transform: translateY(1px);
+}
+
+.ThemeToggle-icon {
+  color: var(--accent-primary);
 }

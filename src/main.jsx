@@ -8,10 +8,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import EngTwoModule from './components/EngTwoModule';
 import ListOfModules from './components/ListOfModules';
 import UserProfile from './components/UserProfile';
+import { ThemeProvider } from './context/ThemeContext';
 import './styles/index.css';
 
-// In the current version of this app, English II is the sole supported subject,
-// so '/english_two/modules' serves as the authenticated landing page.
+// English II is currently the sole supported subject, so '/english_two/modules'
+// serves as the authenticated landing page.
 const router = createBrowserRouter([
   {
     path: '/',
@@ -43,6 +44,8 @@ const root = ReactDOMClient.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );

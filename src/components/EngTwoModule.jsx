@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Text from './Text';
 import TraditionalMultipleChoice from './TraditionalMultipleChoice';
@@ -18,6 +18,8 @@ const EngTwoModule = ({ moduleId }) => {
   const [responses, setResponses] = useState([]);
   const [selectedQuestionId, setSelectedQuestionId] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mobilePane, setMobilePane] = useState('both');
+  const questionsScrollRef = useRef(null);
 
   const navigate = useNavigate();
   const params = useParams();
@@ -34,11 +36,47 @@ const EngTwoModule = ({ moduleId }) => {
     userId
   );
 
+  const totalQuestions = questions?.questions?.length ?? 0;
+
+  useEffect(() => {
+    if (questionsScrollRef.current) {
+      questionsScrollRef.current.scrollTop = 0;
+    }
+  }, [selectedQuestionId, activeModuleId]);
+
+  useEffect(() => {
+    if (totalQuestions === 0) return undefined;
+
+    const handleKeyDown = (evt) => {
+      const tag = evt.target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+        return;
+      }
+      if (evt.key === 'ArrowLeft') {
+        setSelectedQuestionId((prev) => Math.max(1, prev - 1));
+      } else if (evt.key === 'ArrowRight') {
+        setSelectedQuestionId((prev) => Math.min(totalQuestions, prev + 1));
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [totalQuestions]);
+
   if (!questions || !module) {
-    return <p>Loading...</p>;
+    return (
+      <div className='EngTwoModule-shell'>
+        <NavBar />
+        <main className='EngTwoModule'>
+          <p className='EngTwoModule-loading instrument-badge'>
+            LOADING MODULE {activeModuleId}…
+          </p>
+        </main>
+      </div>
+    );
   }
 
-  const totalQuestions = questions.questions.length;
+  const answeredQuestionIds = new Set(responses.map((r) => r.questionId));
   const hasAnsweredAllQuestions =
     totalQuestions > 0 && responses.length === totalQuestions;
 
@@ -51,10 +89,6 @@ const EngTwoModule = ({ moduleId }) => {
     if (selectedQuestionId < totalQuestions) {
       setSelectedQuestionId((prev) => Math.min(prev + 1, totalQuestions));
     }
-  };
-
-  const selectQuestion = (questionNumber) => {
-    setSelectedQuestionId(questionNumber);
   };
 
   const updateModulePerformance = async (evt) => {
@@ -97,7 +131,9 @@ const EngTwoModule = ({ moduleId }) => {
     const commonProps = {
       questionData: question,
       recordResponse: trackResponse,
-      questionNumForDisplay: questionNumber
+      questionNumForDisplay: questionNumber,
+      hasSavedResponse: answeredQuestionIds.has(question.id),
+      isLastQuestion: questionNumber === totalQuestions
     };
 
     switch (question.questionType) {
@@ -117,74 +153,194 @@ const EngTwoModule = ({ moduleId }) => {
   };
 
   return (
-    <div className='EngTwoModule'>
+    <div className='EngTwoModule-shell' data-mobile-pane={mobilePane}>
       <NavBar />
-      <div className='EngTwoModule-banner'>
-        <h1>
-          Module {module.targetModule[0].id}:{' '}
-          {module.targetModule[0].moduleName}
-        </h1>
-      </div>
-      <div className='EngTwoModule-text'>
-        <Text module={activeModuleId} />
-      </div>
-      <div className='EngTwoModule-questions'>
-        <div className='EngTwoModule-questions-navigation'>
-          {questions.questions.map((question, index) => {
-            const questionNumber = index + 1;
-            return (
-              <button
-                key={question.id}
-                type='button'
-                className='EngTwoModule-questions-navigation-btn'
-                onClick={() => selectQuestion(questionNumber)}
-              >
-                Q{questionNumber}
-              </button>
-            );
-          })}
-        </div>
-        <div className='EngTwoModule-questions-main'>
-          {questions.questions.map((question, index) => {
-            const questionNumber = index + 1;
-            const isSelected = questionNumber === selectedQuestionId;
-
-            return (
-              <div
-                id={String(questionNumber)}
-                key={question.id}
-                className={
-                  isSelected
-                    ? 'EngTwoModule-questions-main-question--selected'
-                    : 'EngTwoModule-questions-main-question'
-                }
-              >
-                {renderQuestionComponent(question, questionNumber)}
-              </div>
-            );
-          })}
-        </div>
-        {hasAnsweredAllQuestions ? (
-          <div className='EngTwoModule-final-submission'>
-            <p className='EngTwoModule-final-submission-warning'>
-              <strong>Warning:</strong> DO NOT press this final submission
-              button,{' '}
-              <em>
-                until you have submitted a response for every question in the
-                module.
-              </em>
-            </p>
+      <main className='EngTwoModule'>
+        <header className='EngTwoModule-banner'>
+          <div className='EngTwoModule-banner-meta'>
             <button
               type='button'
-              id='EngTwoModule-questions-final-submit-btn'
-              disabled={isSubmitting}
-              onClick={updateModulePerformance}
+              className='EngTwoModule-back instrument-badge'
+              onClick={() => navigate('/english_two/modules')}
             >
-              Final Module {activeModuleId} Submission
+              ← ALL MODULES
             </button>
+            <span className='EngTwoModule-eyebrow instrument-badge'>
+              MODULE {String(module.targetModule[0].id).padStart(2, '0')} //{' '}
+              {module.targetModule[0].moduleName.toUpperCase()}
+            </span>
           </div>
-        ) : null}
-      </div>
+
+          <div className='EngTwoModule-banner-controls'>
+            <div
+              className='EngTwoModule-mode-switch EngTwoModule-mode-switch--mobile'
+              role='group'
+              aria-label='Narrow viewport pane focus'
+            >
+              <button
+                type='button'
+                className={`EngTwoModule-mode-btn instrument-badge ${
+                  mobilePane === 'passage' ? 'is-active' : ''
+                }`}
+                aria-pressed={mobilePane === 'passage'}
+                onClick={() => setMobilePane('passage')}
+              >
+                <span>PASSAGE</span>
+              </button>
+              <button
+                type='button'
+                className={`EngTwoModule-mode-btn instrument-badge ${
+                  mobilePane === 'question' ? 'is-active' : ''
+                }`}
+                aria-pressed={mobilePane === 'question'}
+                onClick={() => setMobilePane('question')}
+              >
+                <span>Q{selectedQuestionId}</span>
+              </button>
+              <button
+                type='button'
+                className={`EngTwoModule-mode-btn instrument-badge ${
+                  mobilePane === 'both' ? 'is-active' : ''
+                }`}
+                aria-pressed={mobilePane === 'both'}
+                onClick={() => setMobilePane('both')}
+              >
+                <span>STACKED</span>
+              </button>
+            </div>
+
+            <div className='EngTwoModule-progress instrument-badge'>
+              <span>
+                ANSWERED {responses.length} / {totalQuestions}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div className='EngTwoModule-workspace'>
+          <section
+            className='EngTwoModule-text-pane'
+            aria-label='Reading Passage'
+          >
+            <Text module={activeModuleId} />
+          </section>
+
+          <section
+            className='EngTwoModule-questions-pane'
+            aria-label='Assessment Questions'
+          >
+            <div className='EngTwoModule-questions-panel'>
+              <div className='EngTwoModule-nav-row'>
+                <div
+                  className='EngTwoModule-questions-navigation'
+                  role='tablist'
+                  aria-label='Question Selector'
+                >
+                  {questions.questions.map((question, index) => {
+                    const questionNumber = index + 1;
+                    const isSelected = questionNumber === selectedQuestionId;
+                    const isAnswered = answeredQuestionIds.has(question.id);
+                    return (
+                      <button
+                        key={question.id}
+                        type='button'
+                        role='tab'
+                        aria-selected={isSelected}
+                        className={`EngTwoModule-questions-navigation-btn instrument-badge ${
+                          isSelected ? 'is-selected' : ''
+                        } ${isAnswered ? 'is-answered' : ''}`}
+                        onClick={() => setSelectedQuestionId(questionNumber)}
+                      >
+                        <span>Q{questionNumber}</span>
+                        <span
+                          className='EngTwoModule-q-dot'
+                          aria-hidden='true'
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className='EngTwoModule-steppers'>
+                  <button
+                    type='button'
+                    className='EngTwoModule-step-btn instrument-badge'
+                    disabled={selectedQuestionId <= 1}
+                    onClick={() =>
+                      setSelectedQuestionId((prev) => Math.max(1, prev - 1))
+                    }
+                    aria-label='Previous question'
+                  >
+                    ←
+                  </button>
+                  <button
+                    type='button'
+                    className='EngTwoModule-step-btn instrument-badge'
+                    disabled={selectedQuestionId >= totalQuestions}
+                    onClick={() =>
+                      setSelectedQuestionId((prev) =>
+                        Math.min(totalQuestions, prev + 1)
+                      )
+                    }
+                    aria-label='Next question'
+                  >
+                    →
+                  </button>
+                </div>
+              </div>
+
+              <div
+                ref={questionsScrollRef}
+                className='EngTwoModule-questions-main'
+              >
+                {questions.questions.map((question, index) => {
+                  const questionNumber = index + 1;
+                  const isSelected = questionNumber === selectedQuestionId;
+
+                  return (
+                    <div
+                      id={`question-slot-${questionNumber}`}
+                      key={question.id}
+                      className={
+                        isSelected
+                          ? 'EngTwoModule-questions-main-question--selected'
+                          : 'EngTwoModule-questions-main-question'
+                      }
+                    >
+                      {renderQuestionComponent(question, questionNumber)}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {hasAnsweredAllQuestions && (
+              <div className='EngTwoModule-final-submission'>
+                <div className='EngTwoModule-final-copy'>
+                  <span className='EngTwoModule-final-badge instrument-badge'>
+                    ALL {totalQuestions} QUESTIONS SAVED
+                  </span>
+                  <p className='EngTwoModule-final-warning'>
+                    Review any question above or submit your final score for
+                    Module {activeModuleId}.
+                  </p>
+                </div>
+                <button
+                  type='button'
+                  id='EngTwoModule-questions-final-submit-btn'
+                  className='instrument-badge'
+                  disabled={isSubmitting}
+                  onClick={updateModulePerformance}
+                >
+                  {isSubmitting
+                    ? 'RECORDING SCORE...'
+                    : `SUBMIT MODULE ${activeModuleId}`}
+                </button>
+              </div>
+            )}
+          </section>
+        </div>
+      </main>
     </div>
   );
 };
