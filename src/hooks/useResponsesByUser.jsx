@@ -1,30 +1,33 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { fetchResponsesByUserAndModule } from '../api/staarApi';
 
 const useResponsesByUser = (subject, userId, moduleId) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [responses, setResponses] = useState([]);
+  const [responses, setResponses] = useState(null);
 
   useEffect(() => {
-    async function getUserResponses(targetSubject, userId, moduleId) {
+    let isCancelled = false;
+
+    async function loadResponses() {
       try {
-        let userResponses = await axios.get(
-          `${BASE_API_URL}/responses/${subject}/${userId}/${moduleId}`
+        const data = await fetchResponsesByUserAndModule(
+          subject,
+          userId,
+          moduleId
         );
-        console.log(userResponses.data);
-        setResponses(userResponses.data);
-        setIsLoading(false);
+        if (!isCancelled) {
+          setResponses(data);
+          setIsLoading(false);
+        }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
-    getUserResponses(subject, userId, moduleId);
+
+    loadResponses();
+    return () => {
+      isCancelled = true;
+    };
   }, [subject, userId, moduleId]);
 
   if (isLoading) {

@@ -1,35 +1,32 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { fetchQuestionsByModuleId } from '../api/staarApi';
 
 const useQuestionsByModuleId = (id) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [questions, setQuestions] = useState([]);
-
-  let params = useParams();
+  const [questions, setQuestions] = useState(null);
+  const params = useParams();
 
   useEffect(() => {
-    let moduleId;
+    let isCancelled = false;
+    const moduleId = id ?? params.id;
 
-    // If an [id] prop was *not* passed directly to this component, get it from the URL.
-    id ? (moduleId = id) : (moduleId = params.id);
-
-    async function getQuestions(id) {
+    async function loadQuestions() {
       try {
-        let questions = await axios.get(`${BASE_API_URL}/questions/${id}`);
-        setQuestions(questions.data);
-        setIsLoading(false);
+        const data = await fetchQuestionsByModuleId(moduleId);
+        if (!isCancelled) {
+          setQuestions(data);
+          setIsLoading(false);
+        }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
-    getQuestions(moduleId);
+
+    loadQuestions();
+    return () => {
+      isCancelled = true;
+    };
   }, [id, params.id]);
 
   if (isLoading) {

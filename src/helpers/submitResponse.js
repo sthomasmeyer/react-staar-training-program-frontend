@@ -1,22 +1,11 @@
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { submitQuestionResponse } from '../api/staarApi';
 
 async function submitResponse(subject, responseData) {
   try {
-    let response = await axios.post(
-      `${BASE_API_URL}/responses/${subject}`,
-      responseData
-    );
-    console.log(
-      `[success] response submitted for Question No. ${response.data.newResponse.questionId}`
-    );
+    return await submitQuestionResponse(subject, responseData);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return null;
   }
 }
 

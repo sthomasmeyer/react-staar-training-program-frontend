@@ -8,12 +8,11 @@ import '../styles/UserProfile.css';
 
 const UserProfile = () => {
   const userId = sessionStorage.getItem('staar-training-platform-user-id');
-
   const navigate = useNavigate();
 
-  let userInfo = useUserInfoById(userId);
-  let schools = useSchools();
-  let allPerformanceData = useAllPerformanceDataByUser('english_two', userId);
+  const userInfo = useUserInfoById(userId);
+  const schools = useSchools();
+  const allPerformanceData = useAllPerformanceDataByUser('english_two', userId);
 
   const logout = () => {
     sessionStorage.clear();
@@ -24,6 +23,12 @@ const UserProfile = () => {
     return <h3>Loading...</h3>;
   }
 
+  const matchedSchool = schools.schools.find(
+    (s) => s.id === Number(userInfo.user.schoolId)
+  );
+  const schoolName =
+    matchedSchool?.schoolName || schools.schools[0]?.schoolName || 'N/A';
+
   return (
     <div className='UserProfile'>
       <NavBar />
@@ -33,9 +38,7 @@ const UserProfile = () => {
       <div className='UserProfile-main'>
         <div className='UserProfile-main-acct-info'>
           <h2>Email Address: {userInfo.user.email}</h2>
-          <h3>
-            School: {schools.schools[userInfo.user.schoolId - 1].schoolName}
-          </h3>
+          <h3>School: {schoolName}</h3>
         </div>
         <div className='UserProfile-main-divider'></div>
         <div className='UserProfile-main-performance-data'>
@@ -54,8 +57,7 @@ const UserProfile = () => {
             <ul>
               {allPerformanceData.allPerformanceData.map((data) => (
                 <li key={data.moduleId}>
-                  {(parseFloat(data.firstAttempt).toFixed(4) * 100).toFixed(2)}{' '}
-                  %
+                  {(Number(data.firstAttempt) * 100).toFixed(2)} %
                 </li>
               ))}
             </ul>
@@ -65,14 +67,16 @@ const UserProfile = () => {
             <ul>
               {allPerformanceData.allPerformanceData.map((data) => (
                 <li key={data.moduleId}>
-                  {(parseFloat(data.bestOverall).toFixed(4) * 100).toFixed(2)} %
+                  {(Number(data.bestOverall) * 100).toFixed(2)} %
                 </li>
               ))}
             </ul>
           </div>
         </div>
         <div className='UserProfile-main-performance-data-logout-btn'>
-          <button onClick={logout}>Log Out</button>
+          <button type='button' onClick={logout}>
+            Log Out
+          </button>
         </div>
       </div>
     </div>

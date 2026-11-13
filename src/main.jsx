@@ -10,6 +10,8 @@ import ListOfModules from './components/ListOfModules';
 import UserProfile from './components/UserProfile';
 import './styles/index.css';
 
+// In the current version of this app, English II is the sole supported subject,
+// so '/english_two/modules' serves as the authenticated landing page.
 const router = createBrowserRouter([
   {
     path: '/',
@@ -21,10 +23,6 @@ const router = createBrowserRouter([
     element: <NewUserForm />
   },
   {
-    // In the current version of this app, there is *only* one subject -- English II...
-    // So, a list of English II modules operates as the landing page. In the future...
-    // there will be more subjects, and this 'ListOfModules' Component will be replaced...
-    // by a list of subjects that students can choose to study.
     path: '/english_two/modules',
     element: (
       <ProtectedRoute component={<ListOfModules subject={'english_two'} />} />
@@ -43,4 +41,8 @@ const router = createBrowserRouter([
 
 const root = ReactDOMClient.createRoot(document.getElementById('root'));
 
-ReactDOMClient.createRoot(root.render(<RouterProvider router={router} />));
+root.render(
+  <React.StrictMode>
+    <RouterProvider router={router} />
+  </React.StrictMode>
+);

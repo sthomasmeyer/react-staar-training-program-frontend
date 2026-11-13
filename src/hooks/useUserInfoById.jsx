@@ -1,29 +1,32 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchUserById } from '../api/staarApi';
 
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
-
-const useUserInfoById = () => {
+const useUserInfoById = (userIdProp) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [userInfo, setUserInfo] = useState([]);
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    let userId = sessionStorage.getItem('staar-training-platform-user-id');
-    let token = sessionStorage.getItem('staar-training-platform-jwt');
+    let isCancelled = false;
+    const userId =
+      userIdProp ?? sessionStorage.getItem('staar-training-platform-user-id');
 
-    async function getUserInfo(id, jwt) {
-      let res = await axios.get(`${BASE_API_URL}/users/${id}`, {
-        headers: { Authorization: `Bearer ${jwt}` }
-      });
-      setUserInfo(res.data);
-      setIsLoading(false);
+    async function loadUserInfo() {
+      try {
+        const data = await fetchUserById(userId);
+        if (!isCancelled) {
+          setUserInfo(data);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
-    getUserInfo(userId, token);
-  }, []);
+
+    loadUserInfo();
+    return () => {
+      isCancelled = true;
+    };
+  }, [userIdProp]);
 
   if (isLoading) {
     return null;

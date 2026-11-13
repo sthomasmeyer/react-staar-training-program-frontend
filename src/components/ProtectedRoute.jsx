@@ -8,25 +8,20 @@ const ProtectedRoute = ({ component }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function seekToken() {
-      let token = await sessionStorage.getItem('staar-training-platform-jwt');
-      if (token) {
-        setTokenExists(true);
-        setIsLoading(false);
-      } else if (!token) {
-        navigate('/');
-      }
+    const token = sessionStorage.getItem('staar-training-platform-jwt');
+    if (token) {
+      setTokenExists(true);
+      setIsLoading(false);
+    } else {
+      navigate('/');
     }
-    seekToken();
   }, [navigate]);
 
   if (isLoading) {
     return <h3>Loading...</h3>;
   }
 
-  if (tokenExists) {
-    return { ...component };
-  }
+  return tokenExists ? component : null;
 };
 
 export default ProtectedRoute;

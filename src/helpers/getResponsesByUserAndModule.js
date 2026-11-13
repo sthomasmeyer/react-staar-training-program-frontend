@@ -1,20 +1,12 @@
-import axios from 'axios';
+import { fetchResponsesByUserAndModule } from '../api/staarApi';
 
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
-
-async function getResponsesByUserandModule(targetSubject, userId, moduleId) {
+async function getResponsesByUserAndModule(targetSubject, userId, moduleId) {
   try {
-    let userResponses = await axios.get(
-      `${BASE_API_URL}/responses/${targetSubject}/${userId}/${moduleId}`
-    );
-    console.log(userResponses.data);
+    return await fetchResponsesByUserAndModule(targetSubject, userId, moduleId);
   } catch (err) {
-    console.log(err);
+    console.error(err);
+    return null;
   }
 }
 
-export default getResponsesByUserandModule;
+export default getResponsesByUserAndModule;

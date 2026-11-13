@@ -3,74 +3,39 @@ import submitResponse from '../helpers/submitResponse';
 import '../styles/TwoPart.css';
 
 const TwoPart = ({ questionData, recordResponse, questionNumForDisplay }) => {
-  const [selectedAnswerOne, setSelectedAnswerOne] = useState([]);
-  const [selectedAnswerTwo, setSelectedAnswerTwo] = useState([]);
+  const [selectedAnswerOne, setSelectedAnswerOne] = useState('');
+  const [selectedAnswerTwo, setSelectedAnswerTwo] = useState('');
 
   const handleQuestionOne = (evt) => {
-    const { id } = evt.target;
-    setSelectedAnswerOne(id);
+    setSelectedAnswerOne(evt.target.value);
   };
 
   const handleQuestionTwo = (evt) => {
-    const { id } = evt.target;
-    setSelectedAnswerTwo(id);
+    setSelectedAnswerTwo(evt.target.value);
   };
 
   const captureInput = (evt) => {
     evt.preventDefault();
 
-    if (
-      selectedAnswerOne !== questionData.correctAnswer[0] &&
-      selectedAnswerTwo !== questionData.correctAnswer[1]
-    ) {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: [selectedAnswerOne, selectedAnswerTwo],
-        totalPoints: 2,
-        pointsEarned: 0,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 2,
-        pointsEarned: 0
-      });
-    } else if (
-      selectedAnswerOne === questionData.correctAnswer[0] &&
-      selectedAnswerTwo === questionData.correctAnswer[1]
-    ) {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: [selectedAnswerOne, selectedAnswerTwo],
-        totalPoints: 2,
-        pointsEarned: 2,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 2,
-        pointsEarned: 2
-      });
-    } else {
-      submitResponse('english_two', {
-        correctResponse: questionData.correctAnswer,
-        userResponse: [selectedAnswerOne, selectedAnswerTwo],
-        totalPoints: 2,
-        pointsEarned: 1,
-        questionId: questionData.id,
-        moduleId: questionData.moduleId,
-        userId: +sessionStorage.getItem('staar-training-platform-user-id')
-      });
-      recordResponse({
-        questionId: questionData.id,
-        totalPoints: 2,
-        pointsEarned: 1
-      });
-    }
+    const partOneCorrect = selectedAnswerOne === questionData.correctAnswer[0];
+    const partTwoCorrect = selectedAnswerTwo === questionData.correctAnswer[1];
+    const pointsEarned = (partOneCorrect ? 1 : 0) + (partTwoCorrect ? 1 : 0);
+
+    submitResponse('english_two', {
+      correctResponse: questionData.correctAnswer,
+      userResponse: [selectedAnswerOne, selectedAnswerTwo],
+      totalPoints: 2,
+      pointsEarned,
+      questionId: questionData.id,
+      moduleId: questionData.moduleId,
+      userId: Number(sessionStorage.getItem('staar-training-platform-user-id'))
+    });
+
+    recordResponse({
+      questionId: questionData.id,
+      totalPoints: 2,
+      pointsEarned
+    });
   };
 
   return (
@@ -79,32 +44,42 @@ const TwoPart = ({ questionData, recordResponse, questionNumForDisplay }) => {
         <h3>
           Q{questionNumForDisplay}, Part A: {questionData.question[0]}
         </h3>
-        {questionData.answerChoices[0].map((option) => (
-          <div key={option} className='TwoPart-option'>
-            <input
-              type='radio'
-              id={option}
-              name='TwoPartQ1'
-              onChange={handleQuestionOne}
-            />
-            <label htmlFor={option}>{option}</label>
-          </div>
-        ))}
+        {questionData.answerChoices[0].map((option, idx) => {
+          const inputId = `q-${questionData.id}-part-a-${idx}`;
+          return (
+            <div key={option} className='TwoPart-option'>
+              <input
+                type='radio'
+                id={inputId}
+                name={`TwoPartQ1-${questionData.id}`}
+                value={option}
+                checked={selectedAnswerOne === option}
+                onChange={handleQuestionOne}
+              />
+              <label htmlFor={inputId}>{option}</label>
+            </div>
+          );
+        })}
         <h3>
           Q{questionNumForDisplay}, Part B: {questionData.question[1]}
         </h3>
-        {questionData.answerChoices[1].map((option) => (
-          <div key={option} className='TwoPart-option'>
-            <input
-              type='radio'
-              id={option}
-              name='TwoPartQ2'
-              onChange={handleQuestionTwo}
-            />
-            <label htmlFor={option}>{option}</label>
-          </div>
-        ))}
-        <button>Submit</button>
+        {questionData.answerChoices[1].map((option, idx) => {
+          const inputId = `q-${questionData.id}-part-b-${idx}`;
+          return (
+            <div key={option} className='TwoPart-option'>
+              <input
+                type='radio'
+                id={inputId}
+                name={`TwoPartQ2-${questionData.id}`}
+                value={option}
+                checked={selectedAnswerTwo === option}
+                onChange={handleQuestionTwo}
+              />
+              <label htmlFor={inputId}>{option}</label>
+            </div>
+          );
+        })}
+        <button type='submit'>Submit</button>
       </form>
     </div>
   );

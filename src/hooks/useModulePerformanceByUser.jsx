@@ -1,29 +1,33 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { fetchModulePerformanceByUser } from '../api/staarApi';
 
 const useModulePerformanceByUser = (subject, moduleId, userId) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [performanceData, setPerformanceData] = useState([]);
+  const [performanceData, setPerformanceData] = useState(null);
 
   useEffect(() => {
-    async function getModulePerformanceByUser(targetSubject, moduleId, userId) {
+    let isCancelled = false;
+
+    async function loadPerformance() {
       try {
-        let userPerformance = await axios.get(
-          `${BASE_API_URL}/modules/${targetSubject}/${moduleId}/${userId}`
+        const data = await fetchModulePerformanceByUser(
+          subject,
+          moduleId,
+          userId
         );
-        setPerformanceData(userPerformance.data);
-        setIsLoading(false);
+        if (!isCancelled) {
+          setPerformanceData(data);
+          setIsLoading(false);
+        }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     }
-    getModulePerformanceByUser(subject, moduleId, userId);
+
+    loadPerformance();
+    return () => {
+      isCancelled = true;
+    };
   }, [subject, moduleId, userId]);
 
   if (isLoading) {

@@ -1,26 +1,29 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchSchools } from '../api/staarApi';
 
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
-
-// This Hook is designed to GET information about every school in the database...
-// If this app becomes more popular, then more targeted Hooks must be developed...
-// For example: 'useSchoolsByCity', 'useSchoolsByCounty', or 'useSchoolsByDistrict'
 const useSchools = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [schools, setSchools] = useState([]);
+  const [schools, setSchools] = useState(null);
 
   useEffect(() => {
-    async function getSchools() {
-      let schools = await axios.get(`${BASE_API_URL}/schools/`);
-      setSchools(schools.data);
-      setIsLoading(false);
+    let isCancelled = false;
+
+    async function loadSchools() {
+      try {
+        const data = await fetchSchools();
+        if (!isCancelled) {
+          setSchools(data);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
-    getSchools();
+
+    loadSchools();
+    return () => {
+      isCancelled = true;
+    };
   }, []);
 
   if (isLoading) {

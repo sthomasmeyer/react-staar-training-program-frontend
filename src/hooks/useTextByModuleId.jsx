@@ -1,33 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
-
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+import { fetchTextBySubjectAndModuleId } from '../api/staarApi';
 
 const useTextByModuleId = (id) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [text, setText] = useState([]);
-
-  let params = useParams();
+  const [text, setText] = useState(null);
+  const params = useParams();
 
   useEffect(() => {
-    let moduleId;
+    let isCancelled = false;
+    const moduleId = id ?? params.id;
 
-    // If an [id] prop was *not* passed directly to this component, get it from the URL.
-    id ? (moduleId = id) : (moduleId = params.id);
-
-    async function getText(moduleId) {
-      let text = await axios.get(
-        `${BASE_API_URL}/texts/english_two/${moduleId}`
-      );
-      setText(text.data);
-      setIsLoading(false);
+    async function loadText() {
+      try {
+        const data = await fetchTextBySubjectAndModuleId(
+          'english_two',
+          moduleId
+        );
+        if (!isCancelled) {
+          setText(data);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
-    getText(moduleId);
+
+    loadText();
+    return () => {
+      isCancelled = true;
+    };
   }, [id, params.id]);
 
   if (isLoading) {

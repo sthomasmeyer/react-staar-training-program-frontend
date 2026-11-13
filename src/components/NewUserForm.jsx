@@ -1,74 +1,51 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from '../api/staarApi';
 import useSchools from '../hooks/useSchools';
 import '../styles/NewUserForm.css';
 import LoneStarHeader from './LoneStarHeader';
 
-let BASE_API_URL = 'https://english-two-staar-training.herokuapp.com';
-
-if (process.env.NODE_ENV === 'development') {
-  BASE_API_URL = 'http://localhost:8000';
-}
+const INITIAL_STATE = {
+  email: '',
+  schoolId: 1,
+  pwd: '',
+  confirmPwd: ''
+};
 
 const NewUserForm = () => {
-  const INITIAL_STATE = {
-    email: '',
-    schoolId: 1,
-    pwd: '',
-    confirmPwd: ''
-  };
-
   const [formData, setFormData] = useState(INITIAL_STATE);
-
-  // Import the list of schools from the database.
   const schools = useSchools();
-
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleChange = (evt) => {
     const { name, value } = evt.target;
-    // The value assigned to the 'schoolId' key must be an integer.
-    if (name === 'schoolId') {
-      setFormData((data) => ({
-        ...data,
-        [name]: +value
-      }));
-    } else {
-      setFormData((data) => ({
-        ...data,
-        [name]: value
-      }));
-    }
+    setFormData((data) => ({
+      ...data,
+      [name]: name === 'schoolId' ? Number(value) : value
+    }));
   };
 
   async function registerNewUser(data) {
     try {
-      let newUserToken = await axios.post(
-        `${BASE_API_URL}/auth/register`,
-        data
-      );
-      // If the user-registration is successful, update sessionStorage and...
-      // navigate to the landing page.
+      const newUserToken = await registerUser(data);
       if (newUserToken) {
         sessionStorage.setItem(
           'staar-training-platform-jwt',
-          newUserToken.data.token
+          newUserToken.token
         );
         sessionStorage.setItem(
           'staar-training-platform-user-id',
-          newUserToken.data.newUser.id
+          String(newUserToken.newUser.id)
         );
         navigate('/english_two/modules');
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   }
 
   const captureInput = (evt) => {
     evt.preventDefault();
-    console.log({ ...formData });
     if (formData.pwd === formData.confirmPwd) {
       setFormData(INITIAL_STATE);
       registerNewUser({ ...formData });
@@ -99,6 +76,7 @@ const NewUserForm = () => {
             <div>
               <label htmlFor='schoolId'>School: </label>
               <select
+                id='schoolId'
                 name='schoolId'
                 value={formData.schoolId}
                 onChange={handleChange}
@@ -125,6 +103,7 @@ const NewUserForm = () => {
               <label htmlFor='pwd'>Password: </label>
               <input
                 type='password'
+                id='pwd'
                 name='pwd'
                 value={formData.pwd}
                 onChange={handleChange}
@@ -134,17 +113,20 @@ const NewUserForm = () => {
               <label htmlFor='confirm-password'>Confirm Password: </label>
               <input
                 type='password'
+                id='confirm-password'
                 name='confirmPwd'
                 value={formData.confirmPwd}
                 onChange={handleChange}
               />
             </div>
-            <button>Create</button>
+            <button type='submit'>Create</button>
           </form>
         </div>
         <div className='NewUserForm-login'>
           Already have an account?{' '}
-          <button onClick={() => navigate('/')}>Login</button>
+          <button type='button' onClick={() => navigate('/')}>
+            Login
+          </button>
         </div>
       </div>
     </div>
