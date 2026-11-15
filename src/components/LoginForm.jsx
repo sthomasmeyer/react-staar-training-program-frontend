@@ -10,6 +10,7 @@ const INITIAL_STATE = {
 
 const LoginForm = () => {
   const [formData, setFormData] = useState(INITIAL_STATE);
+  const [showPwd, setShowPwd] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
@@ -72,38 +73,61 @@ const LoginForm = () => {
       )}
 
       <form className='AuthCard-form' onSubmit={captureInput}>
-        <label className='AuthCard-field'>
-          <span className='AuthCard-label instrument-badge'>EMAIL ADDRESS</span>
+        <div className='AuthCard-field'>
+          <label htmlFor='email' className='AuthCard-label instrument-badge'>
+            EMAIL ADDRESS
+          </label>
           <input
             className='AuthCard-input'
             type='email'
             id='email'
             name='email'
+            autoComplete='username'
+            spellCheck={false}
+            autoCapitalize='none'
+            enterKeyHint='next'
             placeholder='student@kipp.org'
             value={formData.email}
             onChange={handleChange}
+            required
           />
-        </label>
+        </div>
 
-        <label className='AuthCard-field'>
-          <span className='AuthCard-label instrument-badge'>PASSWORD</span>
-          <input
-            className='AuthCard-input'
-            type='password'
-            id='password'
-            name='pwd'
-            placeholder='Enter your password'
-            value={formData.pwd}
-            onChange={handleChange}
-          />
-        </label>
+        <div className='AuthCard-field'>
+          <label htmlFor='password' className='AuthCard-label instrument-badge'>
+            PASSWORD
+          </label>
+          <div className='AuthCard-input-wrap'>
+            <input
+              className='AuthCard-input AuthCard-input--with-toggle'
+              type={showPwd ? 'text' : 'password'}
+              id='password'
+              name='pwd'
+              autoComplete='current-password'
+              enterKeyHint='done'
+              placeholder='Enter your password'
+              value={formData.pwd}
+              onChange={handleChange}
+              required
+            />
+            <button
+              type='button'
+              className='AuthCard-pwd-toggle instrument-badge'
+              aria-pressed={showPwd}
+              aria-label={showPwd ? 'Hide password' : 'Show password'}
+              onClick={() => setShowPwd((prev) => !prev)}
+            >
+              {showPwd ? 'HIDE' : 'SHOW'}
+            </button>
+          </div>
+        </div>
 
         <button
           type='submit'
           className='AuthCard-primary-btn instrument-badge'
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'SIGNING IN...' : 'LOGIN'}
+          {isSubmitting ? 'SIGNING IN...' : 'SIGN IN'}
         </button>
       </form>
 

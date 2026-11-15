@@ -16,11 +16,11 @@
 
 .TextEntry-input {
   display: inline-block;
-  width: 140px;
+  width: 148px;
   margin: 0 0.35rem;
   padding: 0.25rem 0.55rem;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: max(1rem, 1em);
   font-weight: var(--weight-semibold);
   text-align: center;
   color: var(--accent-primary);
@@ -32,6 +32,5 @@
 
 .TextEntry-input:hover,
 .TextEntry-input:focus-visible {
-  outline: none;
   border-color: var(--accent-primary);
 }

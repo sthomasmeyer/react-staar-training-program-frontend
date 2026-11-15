@@ -5,7 +5,18 @@ const ThemeContext = createContext(null);
 
 function getInitialTheme() {
   try {
-    return localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved === 'light' || saved === 'dark') {
+      return saved;
+    }
+    if (
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
+      return 'dark';
+    }
+    return 'light';
   } catch {
     return 'light';
   }

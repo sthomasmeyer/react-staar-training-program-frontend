@@ -655,3 +655,16 @@
     grid-template-columns: minmax(0, 1fr) 68px 68px 20px;
   }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .UserProfile-row-chevron,
+  .UserProfile-teks-fill {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .UserProfile-teks-fill {
+    background-color: Highlight;
+  }
+}

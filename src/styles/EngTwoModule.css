@@ -68,8 +68,9 @@
   align-items: center;
   gap: 0.35rem;
   border: 0;
+  border-bottom: 2px solid transparent;
   border-radius: 5px;
-  padding: 0.28rem 0.6rem;
+  padding: 0.28rem 0.6rem 0.2rem;
   font-family: var(--font-mono);
   font-size: 0.67rem;
   font-weight: var(--weight-medium);
@@ -79,6 +80,7 @@
   cursor: pointer;
   transition:
     background-color 140ms var(--ease-spring),
+    border-color 140ms var(--ease-spring),
     color 140ms var(--ease-spring);
 }
 
@@ -90,6 +92,7 @@
   background-color: var(--bg-surface);
   color: var(--ink-primary);
   font-weight: var(--weight-semibold);
+  border-bottom-color: var(--accent-primary);
   box-shadow: 0 1px 2px oklch(0% 0 0 / 0.08);
 }
 
@@ -115,6 +118,7 @@
 }
 
 .EngTwoModule-eyebrow {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: var(--weight-semibold);
@@ -279,6 +283,7 @@
   color: var(--keycap-ink);
   background-color: var(--keycap-bg);
   border-color: var(--keycap-bg);
+  border-bottom: 2px solid var(--accent-primary);
   font-weight: var(--weight-semibold);
 }
 
@@ -728,5 +733,12 @@
 
   .EngTwoModule-shell[data-mobile-pane='question'] .EngTwoModule-text-pane {
     display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .EngTwoModule-mode-btn.is-active,
+  .EngTwoModule-questions-navigation-btn.is-selected {
+    border: 2px solid Highlight;
   }
 }

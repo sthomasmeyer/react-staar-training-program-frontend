@@ -79,6 +79,7 @@ export function ThemeToggle() {
       type='button'
       className='ThemeToggle instrument-badge'
       onClick={toggleTheme}
+      aria-pressed={theme === 'dark'}
       aria-label={`Switch to ${nextLabel} mode`}
       title={`Switch to ${nextLabel} mode`}
     >
