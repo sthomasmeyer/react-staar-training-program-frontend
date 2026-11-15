@@ -26,6 +26,8 @@ const EngTwoModule = ({ moduleId }) => {
   const [mobilePane, setMobilePane] = useState('both');
 
   const questionsScrollRef = useRef(null);
+  const questionTablistRef = useRef(null);
+  const questionTabRefs = useRef({});
   const hydratedModuleRef = useRef(null);
 
   const navigate = useNavigate();
@@ -79,13 +81,40 @@ const EngTwoModule = ({ moduleId }) => {
     if (totalQuestions === 0 || submittedReceipt) return undefined;
 
     const handleKeyDown = (evt) => {
-      const tag = evt.target?.tagName;
-      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
+      if (
+        evt.repeat ||
+        evt.isComposing ||
+        evt.metaKey ||
+        evt.ctrlKey ||
+        evt.altKey ||
+        evt.shiftKey
+      ) {
         return;
       }
+
+      if (questionTablistRef.current?.contains(evt.target)) {
+        return;
+      }
+
+      const path =
+        typeof evt.composedPath === 'function' ? evt.composedPath() : [];
+      const isInteractiveTarget = path.some((node) => {
+        if (!node || !node.tagName) return false;
+        const tag = node.tagName;
+        return (
+          tag === 'INPUT' ||
+          tag === 'TEXTAREA' ||
+          tag === 'SELECT' ||
+          node.isContentEditable
+        );
+      });
+      if (isInteractiveTarget) return;
+
       if (evt.key === 'ArrowLeft') {
+        evt.preventDefault();
         setSelectedQuestionId((prev) => Math.max(1, prev - 1));
       } else if (evt.key === 'ArrowRight') {
+        evt.preventDefault();
         setSelectedQuestionId((prev) => Math.min(totalQuestions, prev + 1));
       }
     };
@@ -93,6 +122,26 @@ const EngTwoModule = ({ moduleId }) => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [totalQuestions, submittedReceipt]);
+
+  const handleTablistKeyDown = (evt) => {
+    if (totalQuestions === 0) return;
+
+    let nextNum = null;
+    if (evt.key === 'ArrowLeft') {
+      nextNum = selectedQuestionId <= 1 ? totalQuestions : selectedQuestionId - 1;
+    } else if (evt.key === 'ArrowRight') {
+      nextNum = selectedQuestionId >= totalQuestions ? 1 : selectedQuestionId + 1;
+    } else if (evt.key === 'Home') {
+      nextNum = 1;
+    } else if (evt.key === 'End') {
+      nextNum = totalQuestions;
+    }
+
+    if (nextNum === null) return;
+    evt.preventDefault();
+    setSelectedQuestionId(nextNum);
+    questionTabRefs.current[nextNum]?.focus();
+  };
 
   if (!questions || !module || !attemptState) {
     return (
@@ -248,10 +297,10 @@ const EngTwoModule = ({ moduleId }) => {
             >
               ← ALL MODULES
             </button>
-            <span className='EngTwoModule-eyebrow instrument-badge'>
+            <h1 className='EngTwoModule-eyebrow instrument-badge'>
               MODULE {String(module.targetModule[0].id).padStart(2, '0')} //{' '}
               {module.targetModule[0].moduleName.toUpperCase()}
-            </span>
+            </h1>
           </div>
 
           <div className='EngTwoModule-banner-controls'>
@@ -424,12 +473,17 @@ const EngTwoModule = ({ moduleId }) => {
               </div>
             ) : (
               <>
+                <p className='visually-hidden' aria-live='polite'>
+                  Question {selectedQuestionId} of {totalQuestions}
+                </p>
                 <div className='EngTwoModule-questions-panel'>
                   <div className='EngTwoModule-nav-row'>
                     <div
+                      ref={questionTablistRef}
                       className='EngTwoModule-questions-navigation'
                       role='tablist'
                       aria-label='Question Selector'
+                      onKeyDown={handleTablistKeyDown}
                     >
                       {questions.questions.map((question, index) => {
                         const questionNumber = index + 1;
@@ -441,9 +495,14 @@ const EngTwoModule = ({ moduleId }) => {
                         return (
                           <button
                             key={question.id}
+                            id={`question-tab-${questionNumber}`}
+                            ref={(el) => {
+                              questionTabRefs.current[questionNumber] = el;
+                            }}
                             type='button'
                             role='tab'
                             aria-selected={isSelected}
+                            tabIndex={isSelected ? 0 : -1}
                             className={`EngTwoModule-questions-navigation-btn instrument-badge ${
                               isSelected ? 'is-selected' : ''
                             } ${isAnswered ? 'is-answered' : ''}`}
@@ -535,6 +594,10 @@ const EngTwoModule = ({ moduleId }) => {
                         <div
                           id={`question-slot-${questionNumber}`}
                           key={question.id}
+                          role='tabpanel'
+                          aria-labelledby={`question-tab-${questionNumber}`}
+                          tabIndex={isSelected ? 0 : undefined}
+                          hidden={!isSelected}
                           className={
                             isSelected
                               ? 'EngTwoModule-questions-main-question--selected'

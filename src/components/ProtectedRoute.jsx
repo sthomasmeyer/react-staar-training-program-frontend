@@ -18,7 +18,13 @@ const ProtectedRoute = ({ component }) => {
   }, [navigate]);
 
   if (isLoading) {
-    return <h3>Loading...</h3>;
+    return (
+      <main className='App-main'>
+        <p className='instrument-badge' role='status'>
+          VERIFYING SESSION…
+        </p>
+      </main>
+    );
   }
 
   return tokenExists ? component : null;

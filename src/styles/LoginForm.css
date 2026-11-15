@@ -64,12 +64,18 @@
   color: var(--ink-muted);
 }
 
+.AuthCard-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .AuthCard-input {
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
   padding: 0.55rem 0.78rem;
   font-family: var(--font-sans);
-  font-size: 0.95rem;
+  font-size: max(1rem, 1em);
   color: var(--ink-primary);
   background-color: var(--bg-recessed);
   border: 1px solid var(--border-strong);
@@ -79,14 +85,53 @@
     background-color 140ms var(--ease-spring);
 }
 
-.AuthCard-input:hover,
-.AuthCard-input:focus-visible {
-  outline: none;
+.AuthCard-input--with-toggle {
+  padding-inline-end: 4.5rem;
+}
+
+.AuthCard-pwd-toggle {
+  position: absolute;
+  inset-inline-end: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  color: var(--ink-secondary);
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-hairline);
+  border-radius: 5px;
+  padding: 0.34rem 0.52rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 140ms var(--ease-spring),
+    color 140ms var(--ease-spring);
+}
+
+.AuthCard-pwd-toggle:hover {
+  color: var(--ink-primary);
   border-color: var(--accent-primary);
 }
 
+.AuthCard-input:hover,
+.AuthCard-input:focus-visible {
+  border-color: var(--accent-primary);
+}
+
+.AuthCard-input:user-invalid,
+.AuthCard-input[aria-invalid='true'] {
+  border-color: var(--accent-primary);
+}
+
+.AuthCard-field-error {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: var(--weight-medium);
+  color: var(--accent-primary);
+}
+
 .AuthCard-primary-btn {
-  min-height: 42px;
+  min-height: 44px;
   margin-top: 0.25rem;
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -97,6 +142,7 @@
   border: 1px solid var(--keycap-bg);
   border-radius: 7px;
   cursor: pointer;
+  touch-action: manipulation;
   transition:
     background-color 150ms var(--ease-spring),
     border-color 150ms var(--ease-spring),
@@ -112,6 +158,19 @@
 
 .AuthCard-primary-btn:active:not(:disabled) {
   transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .AuthCard-primary-btn {
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .AuthCard-primary-btn:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 .AuthCard-primary-btn:disabled {

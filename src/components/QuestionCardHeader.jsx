@@ -48,7 +48,7 @@ const QuestionCardHeader = ({
         )}
       </div>
 
-      {promptText && <h3 className='QuestionCard-prompt'>{promptText}</h3>}
+      {promptText && <h2 className='QuestionCard-prompt'>{promptText}</h2>}
 
       {questionData.selectedText && (
         <blockquote className='QuestionCard-excerpt'>

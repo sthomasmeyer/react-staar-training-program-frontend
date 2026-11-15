@@ -193,6 +193,25 @@
   cursor: not-allowed;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .QuestionCard-submit-btn {
+    transition:
+      background-color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .QuestionCard-submit-btn:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .QuestionCard-option.is-selected {
+    border: 2px solid Highlight;
+  }
+}
+
 .QuestionCard-saved-note {
   font-family: var(--font-mono);
   font-size: 0.72rem;

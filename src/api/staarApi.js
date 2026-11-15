@@ -12,11 +12,11 @@ import {
   SEED_QUESTIONS,
   SEED_SCHOOLS,
   SEED_TEXTS
-} from './devSeedData';
-import { normalizeEpochMs } from '../utils/time';
+} from './devSeedData.js';
+import { normalizeEpochMs } from '../utils/time.js';
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') || null;
+  import.meta.env?.VITE_API_BASE_URL?.replace(/\/$/, '') || null;
 
 export const IS_REMOTE_API = Boolean(API_BASE_URL);
 
@@ -502,16 +502,46 @@ export async function fetchModuleBySubjectAndId(subject, id) {
   return { targetModule };
 }
 
+export function sanitizePassageHtml(rawHtml = '') {
+  if (!rawHtml || typeof rawHtml !== 'string') return '';
+
+  return rawHtml
+    .replace(
+      /<\s*(script|iframe|object|embed|style|link|meta|base)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi,
+      ''
+    )
+    .replace(/<\s*(script|iframe|object|embed|style|link|meta|base)\b[^>]*\/?>/gi, '')
+    .replace(/\son[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    .replace(
+      /(href|src|xlink:href)\s*=\s*(["'])\s*(?:javascript|vbscript|data):[^"']*\2/gi,
+      '$1=$2#$2'
+    );
+}
+
 export async function fetchTextBySubjectAndModuleId(subject, moduleId) {
+  let payload;
   if (API_BASE_URL) {
-    return requestRemote(`/texts/${subject}/${moduleId}`);
+    payload = await requestRemote(`/texts/${subject}/${moduleId}`);
+  } else {
+    const numericId = Number(moduleId);
+    const text =
+      (SEED_TEXTS[subject] || []).find((t) => t.moduleId === numericId) || null;
+    payload = { text };
   }
 
-  const numericId = Number(moduleId);
-  const text =
-    (SEED_TEXTS[subject] || []).find((t) => t.moduleId === numericId) || null;
+  if (!payload?.text) {
+    return { text: null };
+  }
 
-  return { text };
+  return {
+    text: {
+      ...payload.text,
+      context: payload.text.context
+        ? sanitizePassageHtml(payload.text.context)
+        : payload.text.context,
+      content: sanitizePassageHtml(payload.text.content)
+    }
+  };
 }
 
 export async function fetchQuestionsByModuleId(moduleId) {

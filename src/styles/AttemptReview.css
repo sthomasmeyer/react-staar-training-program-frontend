@@ -104,6 +104,7 @@
 }
 
 .AttemptReview-eyebrow {
+  margin: 0;
   font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: var(--weight-semibold);
@@ -123,8 +124,9 @@
 
 .AttemptReview-mode-btn {
   border: 0;
+  border-bottom: 2px solid transparent;
   border-radius: 5px;
-  padding: 0.26rem 0.56rem;
+  padding: 0.26rem 0.56rem 0.18rem;
   font-family: var(--font-mono);
   font-size: 0.66rem;
   font-weight: var(--weight-medium);
@@ -138,6 +140,7 @@
   background-color: var(--bg-surface);
   color: var(--ink-primary);
   font-weight: var(--weight-semibold);
+  border-bottom-color: var(--accent-primary);
   box-shadow: 0 1px 2px oklch(0% 0 0 / 0.08);
 }
 
@@ -209,8 +212,9 @@
 
 .AttemptReview-filter-btn {
   border: 0;
+  border-bottom: 2px solid transparent;
   border-radius: 5px;
-  padding: 0.26rem 0.62rem;
+  padding: 0.26rem 0.62rem 0.18rem;
   font-family: var(--font-mono);
   font-size: 0.67rem;
   font-weight: var(--weight-medium);
@@ -229,7 +233,15 @@
   background-color: var(--bg-surface);
   color: var(--ink-primary);
   font-weight: var(--weight-semibold);
+  border-bottom-color: var(--accent-primary);
   box-shadow: 0 1px 2px oklch(0% 0 0 / 0.08);
+}
+
+@media (forced-colors: active) {
+  .AttemptReview-mode-btn.is-active,
+  .AttemptReview-filter-btn.is-active {
+    border: 2px solid Highlight;
+  }
 }
 
 .AttemptReview-list {

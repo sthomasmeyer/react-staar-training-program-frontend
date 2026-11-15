@@ -60,10 +60,12 @@
   font-weight: var(--weight-medium);
   letter-spacing: 0.06em;
   color: var(--ink-secondary);
-  padding: 0.36rem 0.85rem;
+  padding: 0.36rem 0.85rem 0.28rem;
+  border-bottom: 2px solid transparent;
   border-radius: 5px;
   transition:
     background-color 140ms var(--ease-spring),
+    border-color 140ms var(--ease-spring),
     color 140ms var(--ease-spring);
 }
 
@@ -75,7 +77,14 @@
   background-color: var(--bg-surface);
   color: var(--ink-primary);
   font-weight: var(--weight-semibold);
+  border-bottom-color: var(--accent-primary);
   box-shadow: 0 1px 2px oklch(0% 0 0 / 0.08);
+}
+
+@media (forced-colors: active) {
+  .NavBar-link.is-active {
+    border: 2px solid Highlight;
+  }
 }
 
 .NavBar-actions {

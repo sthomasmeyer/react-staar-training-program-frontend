@@ -15,10 +15,17 @@ const INITIAL_STATE = {
 
 const NewUserForm = () => {
   const [formData, setFormData] = useState(INITIAL_STATE);
+  const [showPwd, setShowPwd] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const schools = useSchools();
   const navigate = useNavigate();
+
+  const confirmMismatch =
+    confirmTouched &&
+    formData.confirmPwd.length > 0 &&
+    formData.pwd !== formData.confirmPwd;
 
   const handleChange = (evt) => {
     const { name, value } = evt.target;
@@ -89,29 +96,43 @@ const NewUserForm = () => {
             )}
 
             <form className='AuthCard-form' onSubmit={captureInput}>
-              <label className='AuthCard-field'>
-                <span className='AuthCard-label instrument-badge'>
+              <div className='AuthCard-field'>
+                <label
+                  htmlFor='email'
+                  className='AuthCard-label instrument-badge'
+                >
                   EMAIL ADDRESS
-                </span>
+                </label>
                 <input
                   className='AuthCard-input'
                   type='email'
                   id='email'
                   name='email'
+                  autoComplete='username'
+                  spellCheck={false}
+                  autoCapitalize='none'
+                  enterKeyHint='next'
                   placeholder='student@school.edu'
                   value={formData.email}
                   onChange={handleChange}
+                  required
                 />
-              </label>
+              </div>
 
-              <label className='AuthCard-field'>
-                <span className='AuthCard-label instrument-badge'>SCHOOL</span>
+              <div className='AuthCard-field'>
+                <label
+                  htmlFor='schoolId'
+                  className='AuthCard-label instrument-badge'
+                >
+                  SCHOOL
+                </label>
                 <select
                   className='AuthCard-input NewUserPage-select'
                   id='schoolId'
                   name='schoolId'
                   value={formData.schoolId}
                   onChange={handleChange}
+                  required
                 >
                   {schools.schools.map((school) => (
                     <option key={school.id} value={school.id}>
@@ -119,9 +140,9 @@ const NewUserForm = () => {
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
 
-              <div className='NewUserPage-rules'>
+              <div id='password-rules' className='NewUserPage-rules'>
                 <span className='NewUserPage-rules-title instrument-badge'>
                   PASSWORD REQUIREMENTS
                 </span>
@@ -132,33 +153,69 @@ const NewUserForm = () => {
                 </ul>
               </div>
 
-              <label className='AuthCard-field'>
-                <span className='AuthCard-label instrument-badge'>
+              <div className='AuthCard-field'>
+                <label
+                  htmlFor='pwd'
+                  className='AuthCard-label instrument-badge'
+                >
                   PASSWORD
-                </span>
-                <input
-                  className='AuthCard-input'
-                  type='password'
-                  id='pwd'
-                  name='pwd'
-                  value={formData.pwd}
-                  onChange={handleChange}
-                />
-              </label>
+                </label>
+                <div className='AuthCard-input-wrap'>
+                  <input
+                    className='AuthCard-input AuthCard-input--with-toggle'
+                    type={showPwd ? 'text' : 'password'}
+                    id='pwd'
+                    name='pwd'
+                    autoComplete='new-password'
+                    minLength={8}
+                    pattern='(?=.*\d)(?=.*[a-z])(?=.*[A-Z])\S{8,}'
+                    aria-describedby='password-rules'
+                    enterKeyHint='next'
+                    value={formData.pwd}
+                    onChange={handleChange}
+                    required
+                  />
+                  <button
+                    type='button'
+                    className='AuthCard-pwd-toggle instrument-badge'
+                    aria-pressed={showPwd}
+                    aria-label={showPwd ? 'Hide password' : 'Show password'}
+                    onClick={() => setShowPwd((prev) => !prev)}
+                  >
+                    {showPwd ? 'HIDE' : 'SHOW'}
+                  </button>
+                </div>
+              </div>
 
-              <label className='AuthCard-field'>
-                <span className='AuthCard-label instrument-badge'>
+              <div className='AuthCard-field'>
+                <label
+                  htmlFor='confirm-password'
+                  className='AuthCard-label instrument-badge'
+                >
                   CONFIRM PASSWORD
-                </span>
+                </label>
                 <input
                   className='AuthCard-input'
-                  type='password'
+                  type={showPwd ? 'text' : 'password'}
                   id='confirm-password'
                   name='confirmPwd'
+                  autoComplete='new-password'
+                  enterKeyHint='done'
                   value={formData.confirmPwd}
                   onChange={handleChange}
+                  onBlur={() => setConfirmTouched(true)}
+                  aria-invalid={confirmMismatch ? 'true' : undefined}
+                  aria-describedby={
+                    confirmMismatch ? 'confirm-password-error' : undefined
+                  }
+                  required
                 />
-              </label>
+                {confirmMismatch && (
+                  <p id='confirm-password-error' className='AuthCard-field-error'>
+                    Passwords do not match.
+                  </p>
+                )}
+              </div>
 
               <button
                 type='submit'

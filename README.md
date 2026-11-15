@@ -4,16 +4,9 @@ This is the front-end of a free and open-source STAAR 2.0 training platform for 
 
 ## Tech Stack
 
-1. React, Create React App, React Router, React Testing Library
-2. Node
-3. ExpressJS
-4. PostgreSQL
-5. CSS
-6. Jest
-7. Axios
-8. JSON Web Tokens
-9. JSON Schema
-10. Bcrypt
+1. React 18, Vite 8, React Router 7
+2. Modern CSS (OKLCH tokens, light/dark themes, container queries, native form validation)
+3. Pluggable API adapter (`src/api/staarApi.js`): connects to `VITE_API_BASE_URL` (ExpressJS + PostgreSQL backend) or runs standalone with bundled TEKS seed data and `sessionStorage` persistence.
 
 ## Noteworthy Features:
 

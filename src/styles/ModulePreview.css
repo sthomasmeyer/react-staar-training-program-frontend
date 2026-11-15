@@ -192,3 +192,21 @@
   letter-spacing: 0.06em;
   color: var(--accent-primary);
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .ModulePreview {
+    transition: border-color 160ms ease;
+  }
+
+  .ListOfModules-card-link:hover .ModulePreview,
+  .ListOfModules-card-link:focus-visible .ModulePreview {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ListOfModules-card-link:hover .ModulePreview,
+  .ListOfModules-card-link:focus-visible .ModulePreview {
+    border: 2px solid Highlight;
+  }
+}

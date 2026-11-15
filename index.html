@@ -16,6 +16,22 @@
       content="Open-source STAAR 2.0 English II training platform for Texas high school students and educators."
     />
     <link rel="manifest" href="/manifest.json" />
+    <script>
+      try {
+        var t = localStorage.getItem('staar-training-theme');
+        var dark =
+          t === 'dark' ||
+          (t !== 'light' &&
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.setAttribute(
+          'data-theme',
+          dark ? 'dark' : 'light'
+        );
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    </script>
     <title>STAAR 2.0 Training Platform</title>
   </head>
   <body>

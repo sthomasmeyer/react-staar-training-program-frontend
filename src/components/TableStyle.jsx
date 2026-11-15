@@ -45,6 +45,8 @@ const TableStyle = ({
   const allRowsSelected =
     Object.keys(selectedByRow).length === questionData.answerChoices.length;
 
+  const tableRegionLabelId = `table-region-label-${questionData.id}`;
+
   return (
     <div className='QuestionCard TableStyle'>
       <QuestionCardHeader
@@ -55,73 +57,108 @@ const TableStyle = ({
       />
 
       {questionData.question && (
-        <p className='QuestionCard-subprompt'>{questionData.question}</p>
+        <p id={tableRegionLabelId} className='QuestionCard-subprompt'>
+          {questionData.question}
+        </p>
       )}
 
       <form className='QuestionCard-form' onSubmit={captureInput}>
-        <div className='TableStyle-table'>
-          <div className='TableStyle-row TableStyle-row--head'>
-            <span className='TableStyle-head-cell instrument-badge'>
-              STATEMENT
-            </span>
-            <span className='TableStyle-head-cell is-center instrument-badge'>
-              {questionData.conditions[0]}
-            </span>
-            <span className='TableStyle-head-cell is-center instrument-badge'>
-              {questionData.conditions[1]}
-            </span>
-          </div>
-
-          {questionData.answerChoices.map((quote, idx) => {
-            const radioGroupName = `q-${questionData.id}-row-${idx}`;
-            const trueInputId = `${radioGroupName}-true`;
-            const falseInputId = `${radioGroupName}-false`;
-            return (
-              <div key={quote} className='TableStyle-row'>
-                <label htmlFor={trueInputId} className='TableStyle-statement'>
-                  {quote}
-                </label>
-
-                <label
-                  htmlFor={trueInputId}
-                  className={`TableStyle-cell ${
-                    selectedByRow[quote] === 'true' ? 'is-selected' : ''
-                  }`}
+        <div
+          className='TableStyle-wrapper'
+          tabIndex={0}
+          role='region'
+          aria-labelledby={questionData.question ? tableRegionLabelId : undefined}
+          aria-label={
+            !questionData.question ? 'Statement classification matrix' : undefined
+          }
+        >
+          <table className='TableStyle-table'>
+            <caption className='visually-hidden'>
+              Classify each statement under {questionData.conditions[0]} or{' '}
+              {questionData.conditions[1]}.
+            </caption>
+            <thead>
+              <tr className='TableStyle-row TableStyle-row--head'>
+                <th
+                  scope='col'
+                  className='TableStyle-head-cell instrument-badge'
                 >
-                  <input
-                    type='radio'
-                    id={trueInputId}
-                    name={radioGroupName}
-                    value='true'
-                    checked={selectedByRow[quote] === 'true'}
-                    onChange={() => handleChange(quote, 'true')}
-                  />
-                  <span className='TableStyle-mobile-cond'>
-                    {questionData.conditions[0]}
-                  </span>
-                </label>
-
-                <label
-                  htmlFor={falseInputId}
-                  className={`TableStyle-cell ${
-                    selectedByRow[quote] === 'false' ? 'is-selected' : ''
-                  }`}
+                  STATEMENT
+                </th>
+                <th
+                  scope='col'
+                  className='TableStyle-head-cell is-center instrument-badge'
                 >
-                  <input
-                    type='radio'
-                    id={falseInputId}
-                    name={radioGroupName}
-                    value='false'
-                    checked={selectedByRow[quote] === 'false'}
-                    onChange={() => handleChange(quote, 'false')}
-                  />
-                  <span className='TableStyle-mobile-cond'>
-                    {questionData.conditions[1]}
-                  </span>
-                </label>
-              </div>
-            );
-          })}
+                  {questionData.conditions[0]}
+                </th>
+                <th
+                  scope='col'
+                  className='TableStyle-head-cell is-center instrument-badge'
+                >
+                  {questionData.conditions[1]}
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {questionData.answerChoices.map((quote, idx) => {
+                const radioGroupName = `q-${questionData.id}-row-${idx}`;
+                const trueInputId = `${radioGroupName}-true`;
+                const falseInputId = `${radioGroupName}-false`;
+                return (
+                  <tr key={quote} className='TableStyle-row'>
+                    <th scope='row' className='TableStyle-statement'>
+                      {quote}
+                    </th>
+
+                    <td className='TableStyle-td'>
+                      <label
+                        htmlFor={trueInputId}
+                        className={`TableStyle-cell ${
+                          selectedByRow[quote] === 'true' ? 'is-selected' : ''
+                        }`}
+                      >
+                        <input
+                          type='radio'
+                          id={trueInputId}
+                          name={radioGroupName}
+                          value='true'
+                          checked={selectedByRow[quote] === 'true'}
+                          aria-label={`${quote} — ${questionData.conditions[0]}`}
+                          onChange={() => handleChange(quote, 'true')}
+                        />
+                        <span className='TableStyle-mobile-cond'>
+                          {questionData.conditions[0]}
+                        </span>
+                      </label>
+                    </td>
+
+                    <td className='TableStyle-td'>
+                      <label
+                        htmlFor={falseInputId}
+                        className={`TableStyle-cell ${
+                          selectedByRow[quote] === 'false' ? 'is-selected' : ''
+                        }`}
+                      >
+                        <input
+                          type='radio'
+                          id={falseInputId}
+                          name={radioGroupName}
+                          value='false'
+                          checked={selectedByRow[quote] === 'false'}
+                          aria-label={`${quote} — ${questionData.conditions[1]}`}
+                          onChange={() => handleChange(quote, 'false')}
+                        />
+                        <span className='TableStyle-mobile-cond'>
+                          {questionData.conditions[1]}
+                        </span>
+                      </label>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
 
         <div className='QuestionCard-actions'>

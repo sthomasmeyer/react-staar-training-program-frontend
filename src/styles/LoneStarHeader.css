@@ -67,6 +67,16 @@
   transform: translateY(1px);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .ThemeToggle {
+    transition: border-color 140ms ease;
+  }
+
+  .ThemeToggle:active {
+    transform: none;
+  }
+}
+
 .ThemeToggle-icon {
   color: var(--accent-primary);
 }

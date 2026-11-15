@@ -365,10 +365,10 @@ const AttemptReview = () => {
             >
               ← PROFILE LEDGER
             </button>
-            <span className='AttemptReview-eyebrow instrument-badge'>
+            <h1 className='AttemptReview-eyebrow instrument-badge'>
               MODULE {String(moduleInfo.id).padStart(2, '0')} // ATTEMPT #
               {attempt.attemptNumber} REVIEW
-            </span>
+            </h1>
           </div>
 
           <div className='AttemptReview-banner-controls'>
@@ -379,6 +379,7 @@ const AttemptReview = () => {
             >
               <button
                 type='button'
+                aria-pressed={mobilePane === 'passage'}
                 className={`AttemptReview-mode-btn instrument-badge ${
                   mobilePane === 'passage' ? 'is-active' : ''
                 }`}
@@ -388,6 +389,7 @@ const AttemptReview = () => {
               </button>
               <button
                 type='button'
+                aria-pressed={mobilePane === 'review'}
                 className={`AttemptReview-mode-btn instrument-badge ${
                   mobilePane === 'review' ? 'is-active' : ''
                 }`}
@@ -397,6 +399,7 @@ const AttemptReview = () => {
               </button>
               <button
                 type='button'
+                aria-pressed={mobilePane === 'both'}
                 className={`AttemptReview-mode-btn instrument-badge ${
                   mobilePane === 'both' ? 'is-active' : ''
                 }`}
@@ -446,6 +449,7 @@ const AttemptReview = () => {
                   >
                     <button
                       type='button'
+                      aria-pressed={filterMode === 'all'}
                       className={`AttemptReview-filter-btn instrument-badge ${
                         filterMode === 'all' ? 'is-active' : ''
                       }`}
@@ -455,6 +459,7 @@ const AttemptReview = () => {
                     </button>
                     <button
                       type='button'
+                      aria-pressed={filterMode === 'missed'}
                       className={`AttemptReview-filter-btn instrument-badge ${
                         filterMode === 'missed' ? 'is-active' : ''
                       }`}
